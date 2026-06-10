@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts con estilo futurista -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <!-- TradingView Lightweight Charts -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 
     <script>
         tailwind.config = {
@@ -183,7 +181,7 @@
                     </ul>
                 </div>
 
-                <!-- CONTENEDOR DE 3 CUADROS DE RSI EN VIVO (Reemplazando los recuadros rojos) -->
+                <!-- CONTENEDOR DE 3 CUADROS DE RSI EN VIVO (OK) -->
                 <div class="mt-4 pt-3 border-t border-cyber-border">
                     <div class="text-[10px] font-mono tracking-wider text-gray-500 uppercase mb-2">Osciladores RSI (14) M5 en Vivo</div>
                     <div class="grid grid-cols-3 gap-2">
@@ -220,20 +218,22 @@
                     <div class="flex items-center gap-3">
                         <span class="text-xs font-mono font-bold text-cyber-green bg-cyber-green/10 px-2.5 py-1 rounded border border-cyber-green/20" id="chart-symbol-badge">V75 (1S)</span>
                         <div class="text-sm font-bold tracking-tight" id="chart-symbol-title">Volatility 75 (1s) Index</div>
-                        <span class="text-[11px] text-gray-500">M5 Execution Trigger & Trend Tracker</span>
+                        <span class="text-[11px] text-gray-500 font-mono">M5 Engine & Native Candle Engine</span>
                     </div>
                     <div class="flex gap-1.5 bg-[#121614] p-1 rounded border border-cyber-border text-[10px] font-mono">
-                        <span class="px-2 py-0.5 bg-cyber-green/10 text-cyber-green rounded border border-cyber-green/25 font-bold">LIVE M5</span>
-                        <span class="px-2 py-0.5 text-gray-500">H1 & M15 ANALYZED</span>
+                        <span class="px-2 py-0.5 bg-cyber-green/10 text-cyber-green rounded border border-cyber-green/25 font-bold">NATIVO M5</span>
+                        <span class="px-2 py-0.5 text-gray-500">S/R H1 ACTIVADO</span>
                     </div>
                 </div>
 
-                <!-- Contenedor del Gráfico con Altura Garantizada -->
-                <div class="flex-1 rounded-lg overflow-hidden border border-cyber-border relative bg-[#070908] min-h-[380px] h-[420px]" id="tv-chart-container">
+                <!-- Contenedor del Gráfico con Altura Garantizada y Canvas Integrado -->
+                <div class="flex-1 rounded-lg overflow-hidden border border-cyber-border relative bg-[#070908] min-h-[380px] h-[420px] flex items-center justify-center" id="tv-chart-container">
+                    <canvas id="native-sniper-canvas" class="w-full h-full block bg-[#070908]"></canvas>
+                    
                     <!-- Overlay de Carga -->
-                    <div id="chart-loader" class="absolute inset-0 bg-[#070908]/90 z-10 flex flex-col items-center justify-center gap-3">
+                    <div id="chart-loader" class="absolute inset-0 bg-[#070908]/95 z-10 flex flex-col items-center justify-center gap-3">
                         <i class="fa-solid fa-spinner animate-spin text-2xl text-cyber-green"></i>
-                        <span class="text-xs text-gray-400 font-mono tracking-wider">RECOPILANDO HISTÓRICO DE VELAS...</span>
+                        <span class="text-xs text-gray-400 font-mono tracking-wider">ESTABLECIENDO ENLACE SINTÉTICO EN TIEMPO REAL...</span>
                     </div>
                 </div>
             </div>
@@ -248,7 +248,7 @@
                     <button onclick="clearLogs()" class="text-[10px] text-gray-500 hover:text-cyber-green transition font-mono">LIMPIAR LOGS</button>
                 </div>
                 <div class="flex-1 overflow-y-auto space-y-1.5 font-mono text-xs text-gray-400 pr-1" id="system-logs">
-                    <div class="text-gray-500">[00:00:00] Inicializando motores cuánticos de análisis...</div>
+                    <div class="text-gray-500">[00:00:00] Inicializando motores nativos de análisis estructural...</div>
                     <div class="text-gray-500">[00:00:01] Conexión establecida con la red descentralizada de Deriv WS API.</div>
                 </div>
             </div>
@@ -369,27 +369,36 @@
             '1HZ100V': { name: 'Volatility 100 (1s) Index', shortName: 'V100 (1S)' }
         };
 
-        let activeSymbol = '1HZ75V'; // Activo seleccionado por defecto
+        let activeSymbol = '1HZ75V'; // Activo por defecto
         let ws = null;
         let soundEnabled = true;
-        let chart = null;
-        let candleSeries = null;
-        let trendLineSeries = null; // Línea de tendencia dinámica (EMA)
 
-        // Base de datos de almacenamiento en tiempo real
+        // Base de datos local
         const db = {
             '1HZ50V': { h1: [], m15: [], m5: [], price: 0, analysis: null },
             '1HZ75V': { h1: [], m15: [], m5: [], price: 0, analysis: null },
             '1HZ100V': { h1: [], m15: [], m5: [], price: 0, analysis: null }
         };
 
-        // RELOJ EN TIEMPO REAL
+        // RELOJ GLOBAL DE TIEMPO
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-clock').textContent = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
         }, 1000);
 
-        // REPRODUCTOR DE ALERTA SINTETIZADA
+        // CONFIGURACIÓN DE CANVAS Y REDIMENSIONADO INTEGRADO
+        const canvas = document.getElementById('native-sniper-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            renderCanvasChart();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // REPRODUCTOR SINTETIZADO DE AUDIO FUTURISTA
         function playSignalChirp() {
             if (!soundEnabled) return;
             try {
@@ -462,61 +471,7 @@
             document.getElementById('system-logs').innerHTML = `<div class="text-gray-500">[${new Date().toISOString().substring(11, 19)}] Historial limpiado.</div>`;
         }
 
-        // INICIALIZACIÓN DEL GRÁFICO (TRADINGVIEW LIGHTWEIGHT CHARTS)
-        function initChart() {
-            const chartContainer = document.getElementById('tv-chart-container');
-            chartContainer.innerHTML = ''; // Eliminar loader anterior
-
-            const width = chartContainer.clientWidth || 600;
-            const height = chartContainer.clientHeight || 420;
-
-            chart = LightweightCharts.createChart(chartContainer, {
-                width: width,
-                height: height,
-                layout: {
-                    background: { type: 'solid', color: '#070908' },
-                    textColor: '#94a3b8',
-                },
-                grid: {
-                    vertLines: { color: 'rgba(255, 255, 255, 0.02)' },
-                    horzLines: { color: 'rgba(255, 255, 255, 0.02)' },
-                },
-                rightPriceScale: {
-                    borderColor: 'rgba(255, 255, 255, 0.05)',
-                },
-                timeScale: {
-                    borderColor: 'rgba(255, 255, 255, 0.05)',
-                    timeVisible: true,
-                    secondsVisible: false,
-                },
-            });
-
-            candleSeries = chart.addCandlestickSeries({
-                upColor: '#00e676',
-                downColor: '#ff3366',
-                borderDownColor: '#ff3366',
-                borderUpColor: '#00e676',
-                wickDownColor: '#ff3366',
-                wickUpColor: '#00e676',
-            });
-
-            // Registrar serie para línea de tendencia dinámica (EMA 9)
-            trendLineSeries = chart.addLineSeries({
-                color: '#00e676',
-                lineWidth: 2,
-                lineStyle: LightweightCharts.LineStyle.Solid,
-                axisLabelVisible: false,
-            });
-
-            const resizeObserver = new ResizeObserver(entries => {
-                if (entries.length === 0 || !entries[0].contentRect) return;
-                const { width: entryWidth, height: entryHeight } = entries[0].contentRect;
-                chart.resize(entryWidth, entryHeight || 420);
-            });
-            resizeObserver.observe(chartContainer);
-        }
-
-        // WEBSOCKET: CONEXIÓN & RECEPCIÓN
+        // CONEXIÓN WEBSOCKET Y CARGA DE HISTORIALES
         let responseHandlers = {};
         let reqCount = 0;
 
@@ -568,7 +523,7 @@
         async function loadAllMarketData() {
             const keys = Object.keys(symbols);
             for (let symbolId of keys) {
-                logMessage(symbolId, `Recuperando historial estructural...`);
+                logMessage(symbolId, `Buscando histórico estructural...`);
                 try {
                     await fetchCandles(symbolId, 3600, 100, (candles) => { db[symbolId].h1 = candles; });
                     await fetchCandles(symbolId, 900, 100, (candles) => { db[symbolId].m15 = candles; });
@@ -580,16 +535,15 @@
                     });
 
                     sendWSRequest({ ticks: symbolId });
-                    logMessage(symbolId, `Estructura H1/M15/M5 cargada con éxito.`, 'success');
+                    logMessage(symbolId, `Estructuras H1/M15/M5 cargadas de forma exitosa.`, 'success');
                     analyzeSymbol(symbolId);
                 } catch (err) {
-                    logMessage(symbolId, `Error en carga estructural: ${err.message}`, 'warn');
+                    logMessage(symbolId, `Error en la obtención estructural: ${err.message}`, 'warn');
                 }
             }
 
             document.getElementById('chart-loader').style.display = 'none';
-            initChart();
-            renderActiveChart();
+            resizeCanvas();
             updateRSIWidgets();
         }
 
@@ -616,19 +570,16 @@
                         callback(formatted);
                         resolve(formatted);
                     } else {
-                        reject(new Error("Respuesta inválida"));
+                        reject(new Error("Formato de respuesta desconocido"));
                     }
                 });
             });
         }
 
-        // GESTIÓN Y RENDERIZADO DEL GRÁFICO ACTIVO AL TOCAR LAS PALETAS
-        let currentPriceLines = [];
-
+        // CAMBIO DE SELECCIÓN DE ACTIVOS
         function selectSymbol(symbolId) {
             activeSymbol = symbolId;
             
-            // Actualizar estilo visual de las paletas laterales
             Object.keys(symbols).forEach(id => {
                 const card = document.getElementById(`card-${id}`);
                 if (id === symbolId) {
@@ -641,66 +592,11 @@
             document.getElementById('chart-symbol-badge').textContent = symbols[symbolId].shortName;
             document.getElementById('chart-symbol-title').textContent = symbols[symbolId].name;
 
-            renderActiveChart();
+            renderCanvasChart();
             updateScoringUI(db[symbolId].analysis, db[symbolId].price);
         }
 
-        function renderActiveChart() {
-            if (!candleSeries || !trendLineSeries || !db[activeSymbol]) return;
-
-            const m5Candles = db[activeSymbol].m5;
-            candleSeries.setData(m5Candles);
-
-            // Calcular y graficar la Línea de Tendencia (EMA 9)
-            const emaData = calculateEMA(m5Candles, 9);
-            trendLineSeries.setData(emaData);
-
-            // Ajustar Color de la Línea de Tendencia según el estado del mercado
-            const analysis = db[activeSymbol].analysis;
-            if (analysis) {
-                if (analysis.h1Trend === 'BULLISH') {
-                    trendLineSeries.applyOptions({ color: '#00e676' }); // Verde Neón (Compradores al mando)
-                } else if (analysis.h1Trend === 'BEARISH') {
-                    trendLineSeries.applyOptions({ color: '#ff3366' }); // Rojo Neón (Vendedores al mando)
-                } else {
-                    trendLineSeries.applyOptions({ color: '#64748b' }); // Gris Neutro (Lateralización)
-                }
-            }
-
-            chart.timeScale().fitContent();
-
-            // Limpiar líneas horizontales previas (Soportes/Resistencias H1)
-            currentPriceLines.forEach(line => candleSeries.removePriceLine(line));
-            currentPriceLines = [];
-
-            if (analysis) {
-                analysis.h1Support.forEach((sup, idx) => {
-                    const priceLine = candleSeries.createPriceLine({
-                        price: sup,
-                        color: 'rgba(0, 230, 118, 0.45)',
-                        lineWidth: 1.5,
-                        lineStyle: LightweightCharts.LineStyle.Dashed,
-                        axisLabelVisible: true,
-                        title: `H1 SOPORTE ${idx + 1}`,
-                    });
-                    currentPriceLines.push(priceLine);
-                });
-
-                analysis.h1Resistance.forEach((res, idx) => {
-                    const priceLine = candleSeries.createPriceLine({
-                        price: res,
-                        color: 'rgba(255, 51, 102, 0.45)',
-                        lineWidth: 1.5,
-                        lineStyle: LightweightCharts.LineStyle.Dashed,
-                        axisLabelVisible: true,
-                        title: `H1 RESISTENCIA ${idx + 1}`,
-                    });
-                    currentPriceLines.push(priceLine);
-                });
-            }
-        }
-
-        // CONTROLADOR DE TICK EN VIVO
+        // GESTIÓN DE TICKS EN TIEMPO REAL
         function handleLiveTick(symbolId, price) {
             db[symbolId].price = price;
             
@@ -708,9 +604,12 @@
             if (priceEl) {
                 const prevPrice = parseFloat(priceEl.textContent);
                 priceEl.textContent = price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-                priceEl.className = price > prevPrice 
-                    ? "font-mono text-lg font-bold tracking-tight text-cyber-green mt-0.5 transition-colors duration-150"
-                    : "font-mono text-lg font-bold tracking-tight text-cyber-red mt-0.5 transition-colors duration-150";
+                
+                if (price > prevPrice) {
+                    priceEl.className = "font-mono text-lg font-bold tracking-tight text-cyber-green mt-0.5 transition-colors duration-200";
+                } else {
+                    priceEl.className = "font-mono text-lg font-bold tracking-tight text-cyber-red mt-0.5 transition-colors duration-200";
+                }
             }
 
             const m5List = db[symbolId].m5;
@@ -734,12 +633,8 @@
                     if (price < lastCandle.low) lastCandle.low = price;
                 }
 
-                if (symbolId === activeSymbol && candleSeries) {
-                    candleSeries.update(m5List[m5List.length - 1]);
-                    
-                    // Actualizar la última coordenada de la línea de tendencia de forma dinámica
-                    const emaData = calculateEMA(m5List, 9);
-                    trendLineSeries.setData(emaData);
+                if (symbolId === activeSymbol) {
+                    renderCanvasChart();
                 }
             }
 
@@ -747,7 +642,7 @@
             updateRSIWidgets();
         }
 
-        // ALGORITMO INTEGRAL DE ACCIÓN DEL PRECIO Y ANÁLISIS ESTRUCTURAL H1/M15/M5
+        // ALGORITMO INTEGRAL DE ACCIÓN DEL PRECIO Y ANÁLISIS ESTRUCTURAL
         function analyzeSymbol(symbolId) {
             const data = db[symbolId];
             if (data.h1.length === 0 || data.m15.length === 0 || data.m5.length === 0) return;
@@ -765,7 +660,7 @@
             const m15Trend = determineTrend(m15Fractals.highs, m15Fractals.lows);
             const trendAligned = (h1Trend === m15Trend && h1Trend !== 'LATERAL');
 
-            // 3. Proximidad a la Zona Relevante de Soporte o Resistencia H1
+            // 3. Proximidad a la Zona de Soporte o Resistencia H1
             let nearSupport = false;
             let nearResistance = false;
             let targetZone = null;
@@ -785,7 +680,7 @@
                 }
             });
 
-            // 4. Gatillado M5 (Ruptura CHoCH o rechazos con mecha)
+            // 4. Gatillado M5 (CHoCH o rechazos de mecha)
             const m5Fractals = identifyFractals(data.m5);
             let m5Trigger = false;
             let triggerPattern = "Ninguno";
@@ -826,7 +721,7 @@
                 }
             }
 
-            // 5. Impulso del Momentum
+            // 5. Fuerza e impulso
             let impulseScore = 0;
             const lastThree = data.m5.slice(-3);
             if (lastThree.length === 3) {
@@ -838,7 +733,7 @@
                 }
             }
 
-            // Matrices de Puntaje
+            // 6. Matriz de Puntuación Estricta
             const scoreH1 = h1Trend !== 'LATERAL' ? 25 : 0;
             const scoreM15 = trendAligned ? 20 : 0;
             const scoreZone = (nearSupport || nearResistance) ? 25 : 0;
@@ -866,7 +761,7 @@
             }
         }
 
-        // CÁLCULO DE FRACTALES DE 5 VELAS
+        // FRACTALES DE 5 VELAS
         function identifyFractals(candles) {
             const highs = [];
             const lows = [];
@@ -889,7 +784,7 @@
             return { highs, lows };
         }
 
-        // DETECCIÓN DE TENDENCIA POR PIVOTES DE ESTRUCTURA
+        // DETERMINACIÓN DE LA TENDENCIA MACRO (HH-HL / LH-LL)
         function determineTrend(highs, lows) {
             if (highs.length < 2 || lows.length < 2) return 'LATERAL';
             
@@ -903,7 +798,7 @@
             return 'LATERAL';
         }
 
-        // CÁLCULO MATEMÁTICO EN TIEMPO REAL DEL RSI (14)
+        // CALCULO MATEMÁTICO REAL DEL RSI (14)
         function calculateRSI(candles, period = 14) {
             if (candles.length < period + 1) return 50.0;
             
@@ -933,23 +828,7 @@
             return 100.0 - (100.0 / (1.0 + rs));
         }
 
-        // CÁLCULO MATEMÁTICO DE LA MEDIA MÓVIL (LINEA DE TENDENCIA ADHERIDA A VELAS)
-        function calculateEMA(candles, period = 9) {
-            const emaValues = [];
-            if (candles.length === 0) return emaValues;
-
-            const k = 2 / (period + 1);
-            let ema = candles[0].close;
-            emaValues.push({ time: candles[0].time, value: ema });
-
-            for (let i = 1; i < candles.length; i++) {
-                ema = candles[i].close * k + ema * (1 - k);
-                emaValues.push({ time: candles[i].time, value: ema });
-            }
-            return emaValues;
-        }
-
-        // REPRODUCCIÓN Y CONTROL DE COLORES EN VIVO DEL RSI
+        // GESTIÓN DE COLORES DE RSI EN VIVO
         function updateRSIWidgets() {
             ['1HZ50V', '1HZ75V', '1HZ100V'].forEach(id => {
                 const candles = db[id].m5;
@@ -962,7 +841,6 @@
                 if (rsiValEl && rsiCardEl) {
                     rsiValEl.textContent = rsiVal.toFixed(1);
 
-                    // Cambiar color a rojo al llegar a >= 80 y verde en <= 20
                     if (rsiVal >= 80) {
                         rsiCardEl.className = "bg-cyber-red/20 border border-cyber-red p-2.5 rounded-lg text-center glow-red transition-all duration-300 animate-pulse";
                         rsiValEl.className = "font-mono text-sm font-bold text-cyber-red";
@@ -975,6 +853,191 @@
                     }
                 }
             });
+        }
+
+        // MOTOR DE RENDERIZADO GRÁFICO NATIVO (HTML5 CANVAS)
+        function renderCanvasChart() {
+            if (!canvas || !db[activeSymbol]) return;
+            const data = db[activeSymbol];
+            const candles = data.m5;
+            const analysis = data.analysis;
+
+            // Limpieza del canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (candles.length === 0) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '12px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText('RECUPERANDO HISTÓRICO DE VELAS...', canvas.width / 2, canvas.height / 2);
+                return;
+            }
+
+            // Ordenación de velas
+            const sorted = [...candles].sort((a, b) => a.time - b.time);
+
+            // Escala de precios máximos y mínimos
+            let minPrice = Infinity;
+            let maxPrice = -Infinity;
+
+            // Incluir EMA 9 (Línea de Tendencia) en el cálculo de escala
+            const emaPeriod = 9;
+            const k = 2 / (emaPeriod + 1);
+            let emaValues = [];
+            if (sorted.length > 0) {
+                let currentEma = sorted[0].close;
+                emaValues.push(currentEma);
+                for (let i = 1; i < sorted.length; i++) {
+                    currentEma = sorted[i].close * k + currentEma * (1 - k);
+                    emaValues.push(currentEma);
+                }
+            }
+
+            sorted.forEach((c, idx) => {
+                if (c.high > maxPrice) maxPrice = c.high;
+                if (c.low < minPrice) minPrice = c.low;
+                if (emaValues[idx] > maxPrice) maxPrice = emaValues[idx];
+                if (emaValues[idx] < minPrice) minPrice = emaValues[idx];
+            });
+
+            // Incluir soportes y resistencias para evitar que queden fuera del gráfico
+            let levels = [];
+            if (analysis) {
+                levels = [...analysis.h1Support, ...analysis.h1Resistance];
+            }
+            levels.forEach(lvl => {
+                if (lvl > maxPrice) maxPrice = lvl;
+                if (lvl < minPrice) minPrice = lvl;
+            });
+
+            // Márgenes del gráfico
+            const range = maxPrice - minPrice;
+            minPrice -= range * 0.08;
+            maxPrice += range * 0.08;
+
+            const paddingRight = 75;
+            const paddingBottom = 25;
+            const paddingTop = 25;
+            const paddingLeft = 15;
+
+            const chartWidth = canvas.width - paddingLeft - paddingRight;
+            const chartHeight = canvas.height - paddingTop - paddingBottom;
+
+            // Funciones auxiliares de mapeo de coordenadas
+            function getX(index) {
+                return paddingLeft + (index / (sorted.length - 1)) * chartWidth;
+            }
+            function getY(price) {
+                return paddingTop + (1 - (price - minPrice) / (maxPrice - minPrice)) * chartHeight;
+            }
+
+            // DIBUJAR LÍNEAS DE REJILLA HORIZONTALES
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= 5; i++) {
+                const y = paddingTop + (i / 5) * chartHeight;
+                ctx.beginPath();
+                ctx.moveTo(paddingLeft, y);
+                ctx.lineTo(canvas.width - paddingRight, y);
+                ctx.stroke();
+
+                // Escala de precios (Eje Y derecho)
+                const priceVal = maxPrice - (i / 5) * (maxPrice - minPrice);
+                ctx.fillStyle = '#64748b';
+                ctx.font = '10px Space Grotesk';
+                ctx.textAlign = 'left';
+                ctx.fillText(priceVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 }), canvas.width - paddingRight + 8, y + 3.5);
+            }
+
+            // DIBUJAR LÍNEAS DE ZONA H1 DISCONTINUAS (SOPORTE Y RESISTENCIA)
+            if (analysis) {
+                // Soportes (Verdes)
+                analysis.h1Support.forEach((sup, idx) => {
+                    const y = getY(sup);
+                    ctx.strokeStyle = 'rgba(0, 230, 118, 0.45)';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([6, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(paddingLeft, y);
+                    ctx.lineTo(canvas.width - paddingRight, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]); // Resetear discontinuidad
+
+                    ctx.fillStyle = '#00e676';
+                    ctx.font = '9px Orbitron';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`H1 SOPORTE ${idx + 1}`, canvas.width - paddingRight - 8, y - 4);
+                });
+
+                // Resistencias (Rojas)
+                analysis.h1Resistance.forEach((res, idx) => {
+                    const y = getY(res);
+                    ctx.strokeStyle = 'rgba(255, 51, 102, 0.45)';
+                    ctx.lineWidth = 1.5;
+                    ctx.setLineDash([6, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(paddingLeft, y);
+                    ctx.lineTo(canvas.width - paddingRight, y);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    ctx.fillStyle = '#ff3366';
+                    ctx.font = '9px Orbitron';
+                    ctx.textAlign = 'right';
+                    ctx.fillText(`H1 RESISTENCIA ${idx + 1}`, canvas.width - paddingRight - 8, y - 4);
+                });
+            }
+
+            // DIBUJAR VELAS (VELAS CANDLESTICK)
+            const candleWidth = Math.max(1.5, (chartWidth / sorted.length) * 0.55);
+            sorted.forEach((c, idx) => {
+                const x = getX(idx);
+                const yOpen = getY(c.open);
+                const yClose = getY(c.close);
+                const yHigh = getY(c.high);
+                const yLow = getY(c.low);
+
+                const isBullish = c.close >= c.open;
+                ctx.strokeStyle = isBullish ? '#00e676' : '#ff3366';
+                ctx.fillStyle = isBullish ? '#00e676' : '#ff3366';
+                ctx.lineWidth = 1.2;
+
+                // Mecha de la vela
+                ctx.beginPath();
+                ctx.moveTo(x, yHigh);
+                ctx.lineTo(x, yLow);
+                ctx.stroke();
+
+                // Cuerpo de la vela
+                const bodyHeight = Math.max(1, Math.abs(yClose - yOpen));
+                ctx.fillRect(x - candleWidth / 2, Math.min(yOpen, yClose), candleWidth, bodyHeight);
+            });
+
+            // DIBUJAR LÍNEA DE TENDENCIA ADHERIDA A LAS VELAS (CON BRILLO GLOW)
+            if (emaValues.length > 0) {
+                let trendColor = '#64748b';
+                if (analysis) {
+                    if (analysis.h1Trend === 'BULLISH') trendColor = '#00e676';
+                    else if (analysis.h1Trend === 'BEARISH') trendColor = '#ff3366';
+                }
+
+                ctx.strokeStyle = trendColor;
+                ctx.lineWidth = 2.5;
+                ctx.shadowColor = trendColor;
+                ctx.shadowBlur = 8; // Efecto de iluminación de neón
+
+                ctx.beginPath();
+                for (let i = 0; i < emaValues.length; i++) {
+                    const x = getX(i);
+                    const y = getY(emaValues[i]);
+                    if (i === 0) ctx.moveTo(x, y);
+                    else ctx.lineTo(x, y);
+                }
+                ctx.stroke();
+
+                // Desactivar el efecto de brillo para no ralentizar el resto del renderizado
+                ctx.shadowBlur = 0;
+            }
         }
 
         // ACTUALIZACIÓN DE LA BARRA LATERAL
@@ -1021,7 +1084,7 @@
             }
         }
 
-        // COCKPIT PRINCIPAL DE DECISIÓN
+        // COCKPIT DE DECISIÓN Y ENTRADAS DE COMPRA/VENTA
         let alertTriggered = {};
 
         function updateScoringUI(analysis, currentPrice) {
@@ -1075,7 +1138,7 @@
             document.getElementById('impulse-details').textContent = scores.impulseScore > 0 ? "Presión Fuerte Direccional" : "Falta de Volumen / Impulso";
         }
 
-        // DESPLIEGUE OPERATIVO: COMPRA / VENTA
+        // DISPARADOR DE OPERACIÓN (COMPRA / VENTA)
         function triggerSniperAction(analysis, currentPrice) {
             const opAction = document.getElementById('op-action');
             const opPrice = document.getElementById('op-price');
