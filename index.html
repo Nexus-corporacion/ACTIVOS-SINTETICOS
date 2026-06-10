@@ -8,22 +8,61 @@ const SYMBOLS = [
 
 const DERIV_WS = "wss://ws.binaryws.com/websockets/v3?app_id=1089";
 
-// ─── Estructura de mercado ────────────────────────────────────────────────────
-function detectStructure(candles) {
-  if (!candles || candles.length < 10) return null;
+// ─── Estructura de mercado adaptada a ventana variable por Timeframe ───────────
+function detectStructure(candles, windowSize = 3) {
+  if (!candles || candles.length < 15) return null;
   const closes = candles.map(c => parseFloat(c.close));
   const highs  = candles.map(c => parseFloat(c.high));
   const lows   = candles.map(c => parseFloat(c.low));
   const n = closes.length;
 
-  // Swing highs / lows (ventana de 3)
-  const swingHighs = [], swingLows = [];
-  for (let i = 1; i < n - 1; i++) {
-    if (highs[i] > highs[i-1] && highs[i] > highs[i+1]) swingHighs.push({ i, v: highs[i] });
-    if (lows[i]  < lows[i-1]  && lows[i]  < lows[i+1])  swingLows.push({ i, v: lows[i] });
+  const swingHighs = [];
+  const swingLows = [];
+
+  // Definir offsets de validación lateral para los swings según el tamaño de ventana
+  let leftOffsets, rightOffsets;
+  if (windowSize === 5) {
+    leftOffsets = [-2, -1];
+    rightOffsets = [1, 2];
+  } else if (windowSize === 4) {
+    leftOffsets = [-2, -1];
+    rightOffsets = [1];
+  } else { // Ventana de 3 por defecto
+    leftOffsets = [-1];
+    rightOffsets = [1];
   }
 
-  // Tendencia: comparar últimos 2 swing highs y lows
+  const maxOffset = 2; // Margen de seguridad para buscar en los extremos
+
+  for (let i = maxOffset; i < n - maxOffset; i++) {
+    // Buscar swing high
+    let isHigh = true;
+    for (const o of leftOffsets) {
+      if (highs[i] <= highs[i + o]) { isHigh = false; break; }
+    }
+    if (isHigh) {
+      for (const o of rightOffsets) {
+        if (highs[i] <= highs[i + o]) { isHigh = false; break; }
+      }
+    }
+    if (isHigh) swingHighs.push({ i, v: highs[i] });
+
+    // Buscar swing low
+    let isLow = true;
+    for (const o of leftOffsets) {
+      if (lows[i] >= lows[i + o]) { isLow = false; break; }
+    }
+    if (isLow) {
+      for (const o of rightOffsets) {
+        if (lows[i] >= lows[i + o]) { isLow = false; break; }
+      }
+    }
+    if (isLow) swingLows.push({ i, v: lows[i] });
+  }
+
+  const swingStrength = swingHighs.length + swingLows.length;
+
+  // Determinar tendencia basándonos en los últimos 2 swings
   let trend = "lateral";
   if (swingHighs.length >= 2 && swingLows.length >= 2) {
     const hh = swingHighs[swingHighs.length-1].v > swingHighs[swingHighs.length-2].v;
@@ -34,15 +73,16 @@ function detectStructure(candles) {
     else if (lh && ll) trend = "bajista";
   }
 
-  // BOS: cierre por encima del último swing high (alcista) o por debajo del último swing low (bajista)
+  // BOS: Cierre en comparación con el penúltimo swing detectado (índice length - 2)
   const lastClose = closes[n-1];
-  const lastSwingHigh = swingHighs.length ? swingHighs[swingHighs.length-1].v : null;
-  const lastSwingLow  = swingLows.length  ? swingLows[swingLows.length-1].v   : null;
+  const penultimateSwingHigh = swingHighs.length >= 2 ? swingHighs[swingHighs.length-2].v : null;
+  const penultimateSwingLow  = swingLows.length >= 2  ? swingLows[swingLows.length-2].v  : null;
+  
   let bos = null;
-  if (lastSwingHigh && lastClose > lastSwingHigh) bos = "alcista";
-  if (lastSwingLow  && lastClose < lastSwingLow)  bos = "bajista";
+  if (penultimateSwingHigh && lastClose > penultimateSwingHigh) bos = "alcista";
+  if (penultimateSwingLow  && lastClose < penultimateSwingLow)  bos = "bajista";
 
-  // CHoCH: cambio de tendencia reciente
+  // CHoCH: Cambio de estructura
   let choch = null;
   if (swingHighs.length >= 2 && swingLows.length >= 2) {
     const prevTrend = (() => {
@@ -57,59 +97,67 @@ function detectStructure(candles) {
     if (prevTrend !== trend && prevTrend !== "lateral" && trend !== "lateral") choch = trend;
   }
 
-  // Zonas de demanda/oferta (últimos swing lows/highs como zonas)
-  const demandZone = swingLows.length  ? swingLows[swingLows.length-1].v   : null;
+  const demandZone = swingLows.length ? swingLows[swingLows.length-1].v : null;
   const supplyZone = swingHighs.length ? swingHighs[swingHighs.length-1].v : null;
 
-  // Impulso: variación relativa de las últimas 3 velas
-  const impulse = n >= 3
-    ? Math.abs((closes[n-1] - closes[n-4]) / closes[n-4]) * 100
-    : 0;
-
-  // Precio en zona relevante (±0.5% del swing más cercano)
-  const nearDemand = demandZone && Math.abs(lastClose - demandZone) / demandZone < 0.005;
-  const nearSupply = supplyZone && Math.abs(lastClose - supplyZone) / supplyZone < 0.005;
-  const inZone = nearDemand || nearSupply;
-
-  // RSI 14
+  // RSI 14 de M5
   let rsi = null;
   if (closes.length >= 16) {
     let g = 0, l = 0;
     for (let i = 1; i <= 14; i++) { const d = closes[i] - closes[i-1]; if (d > 0) g += d; else l -= d; }
     let ag = g / 14, al = l / 14;
-    for (let i = 15; i < closes.length; i++) { const d = closes[i] - closes[i-1]; ag = (ag * 13 + (d > 0 ? d : 0)) / 14; al = (al * 13 + (d < 0 ? -d : 0)) / 14; }
+    for (let i = 15; i < closes.length; i++) {
+      const d = closes[i] - closes[i-1];
+      ag = (ag * 13 + (d > 0 ? d : 0)) / 14;
+      al = (al * 13 + (d < 0 ? -d : 0)) / 14;
+    }
     rsi = al === 0 ? 100 : Math.round((100 - 100 / (1 + ag / al)) * 10) / 10;
   }
 
-  return { trend, bos, choch, demandZone, supplyZone, impulse, inZone, lastClose, swingHighs, swingLows, rsi };
+  return { trend, bos, choch, demandZone, supplyZone, lastClose, swingHighs, swingLows, swingStrength, rsi };
 }
 
-function score(h1, m15, m5) {
-  let pts = 0;
-  // H1 estructura (25)
-  if (h1?.trend && h1.trend !== "lateral") pts += 25;
-  else if (h1?.trend === "lateral") pts += 5;
-  // M15 confirmación (20)
-  if (m15 && h1 && m15.trend === h1.trend) pts += 20;
-  else if (m15 && m15.trend !== "lateral") pts += 8;
-  // Zona relevante (25)
-  if (h1?.inZone) pts += 25;
-  // CHoCH / BOS M5 (20)
-  if (m5?.choch) pts += 20;
-  else if (m5?.bos) pts += 12;
-  // Impulso (10)
-  if (m5?.impulse > 0.3) pts += 10;
-  else if (m5?.impulse > 0.1) pts += 5;
-  return Math.min(pts, 100);
+// ─── Arquitectura de Filtros de Señal Sniper en Cascada ──────────────────────
+function getSniperSignal(h1, m15, m5) {
+  if (!h1 || !m15 || !m5) return null;
+
+  // 1. Tendencia de H1 clara
+  if (h1.trend !== "alcista" && h1.trend !== "bajista") return null;
+  const targetTrend = h1.trend;
+
+  // 2. M15 alineada con H1
+  if (m15.trend !== targetTrend) return null;
+
+  // 3. BOS real en M15 en la dirección H1 y al menos 4 swings
+  if (!m15.bos || m15.bos !== targetTrend) return null;
+  if (m15.swingStrength < 4) return null;
+
+  // 4. Precio actual dentro del +-0.2% de la zona correspondiente de H1
+  const price = m5.lastClose;
+  if (targetTrend === "alcista") {
+    if (!h1.demandZone) return null;
+    const diff = Math.abs(price - h1.demandZone) / h1.demandZone;
+    if (diff > 0.002) return null;
+  } else {
+    if (!h1.supplyZone) return null;
+    const diff = Math.abs(price - h1.supplyZone) / h1.supplyZone;
+    if (diff > 0.002) return null;
+  }
+
+  // 5. M5 confirma con BOS o CHoCH en la dirección de H1
+  const m5Confirmed = (m5.bos === targetTrend) || (m5.choch === targetTrend);
+  if (!m5Confirmed) return null;
+
+  // Retornar información estructurada del setup sniper
+  const trigger = m5.choch === targetTrend ? "CHoCH" : "BOS";
+  return {
+    direction: targetTrend === "alcista" ? "COMPRA" : "VENTA",
+    trigger: trigger,
+    color: targetTrend === "alcista" ? "#00E676" : "#FF5252"
+  };
 }
 
-function quality(s) {
-  if (s >= 80) return { label: "ALTA CALIDAD", color: "#00E676", bg: "rgba(0,230,118,0.1)" };
-  if (s >= 60) return { label: "CALIDAD MEDIA", color: "#FFD740", bg: "rgba(255,215,64,0.1)" };
-  return { label: "DESCARTAR", color: "#FF5252", bg: "rgba(255,82,82,0.08)" };
-}
-
-// ─── Mini sparkline ───────────────────────────────────────────────────────────
+// ─── Sparkline en Miniatura para tarjetas ─────────────────────────────────────
 function Sparkline({ data, color }) {
   if (!data || data.length < 2) return <div style={{height:48,display:"flex",alignItems:"center",justifyContent:"center",color:"#333",fontSize:11}}>sin datos</div>;
   const vals = data.map(d => parseFloat(d.close));
@@ -133,49 +181,92 @@ function Sparkline({ data, color }) {
   );
 }
 
-// ─── Score Ring ───────────────────────────────────────────────────────────────
-function ScoreRing({ value }) {
-  const r = 28, circ = 2 * Math.PI * r;
-  const offset = circ - (value / 100) * circ;
-  const q = quality(value);
+// ─── Indicador Visual de Mira Sniper ─────────────────────────────────────────
+function SniperScopeIndicator({ active, color }) {
   return (
-    <div style={{position:"relative",width:72,height:72,flexShrink:0}}>
-      <svg width={72} height={72}>
-        <circle cx={36} cy={36} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={5}/>
-        <circle cx={36} cy={36} r={r} fill="none" stroke={q.color} strokeWidth={5}
-          strokeDasharray={circ} strokeDashoffset={offset}
-          strokeLinecap="round" transform="rotate(-90 36 36)"
-          style={{transition:"stroke-dashoffset 1s ease, stroke 0.5s"}}/>
-      </svg>
-      <div style={{position:"absolute",inset:0,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-        <span style={{fontSize:18,fontWeight:700,color:q.color,lineHeight:1}}>{value}</span>
-        <span style={{fontSize:9,color:"rgba(255,255,255,0.4)",letterSpacing:"0.05em"}}>pts</span>
-      </div>
+    <div style={{
+      position: "relative", width: 56, height: 56, borderRadius: "50%",
+      border: `2px dashed ${active ? color : "rgba(255,255,255,0.1)"}`,
+      display: "flex", alignItems: "center", justifyContent: "center",
+      boxShadow: active ? `0 0 16px ${color}33` : "none",
+      transition: "all 0.3s ease", flexShrink: 0
+    }}>
+      <div style={{ position: "absolute", width: "100%", height: 1, background: active ? color : "rgba(255,255,255,0.1)", opacity: 0.3 }} />
+      <div style={{ position: "absolute", height: "100%", width: 1, background: active ? color : "rgba(255,255,255,0.1)", opacity: 0.3 }} />
+      <div style={{
+        width: 8, height: 8, borderRadius: "50%",
+        background: active ? color : "rgba(255,255,255,0.2)",
+        boxShadow: active ? `0 0 8px ${color}` : "none",
+        transition: "background 0.3s"
+      }} />
     </div>
   );
 }
 
-// ─── Tarjeta de símbolo ───────────────────────────────────────────────────────
+// ─── Mini Chart de Tendencia en Vivo del Panel ────────────────────────────────
+function LiveTrendChart({ m5Data, tipColor }) {
+  if (!m5Data || m5Data.length < 2) {
+    return (
+      <div style={{ height: 60, display: "flex", alignItems: "center", justifyContent: "center", color: "rgba(255,255,255,0.2)", fontSize: 11 }}>
+        Cargando datos en tiempo real…
+      </div>
+    );
+  }
+  const vals = m5Data.map(d => parseFloat(d.close));
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const W = 800, H = 60;
+
+  const pts = vals.map((v, i) => {
+    const x = (i / (vals.length - 1)) * W;
+    const y = H - ((v - min) / range) * (H - 8) - 4;
+    return `${x},${y}`;
+  }).join(" ");
+
+  const lastY = H - ((vals[vals.length - 1] - min) / range) * (H - 8) - 4;
+
+  return (
+    <svg width="100%" height={H} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" style={{ overflow: "visible" }}>
+      <defs>
+        <linearGradient id="live-grad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={tipColor} stopOpacity="0.12"/>
+          <stop offset="100%" stopColor={tipColor} stopOpacity="0"/>
+        </linearGradient>
+      </defs>
+      <polygon points={`0,${H} ${pts} ${W},${H}`} fill="url(#live-grad)" />
+      <polyline points={pts} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" strokeLinejoin="round" />
+      <circle cx={W} cy={lastY} r="5" fill={tipColor} style={{ filter: `drop-shadow(0 0 6px ${tipColor})` }} />
+    </svg>
+  );
+}
+
+// ─── Tarjeta de Símbolo Individual ──────────────────────────────────────────
 function SymbolCard({ sym, data, livePrice }) {
-  const h1  = data?.h1  ? detectStructure(data.h1)  : null;
-  const m15 = data?.m15 ? detectStructure(data.m15) : null;
-  const m5  = data?.m5  ? detectStructure(data.m5)  : null;
-  const pts = h1 && m15 && m5 ? score(h1, m15, m5) : 0;
-  const q   = quality(pts);
+  const h1  = data?.h1  ? detectStructure(data.h1, 5)  : null;
+  const m15 = data?.m15 ? detectStructure(data.m15, 4) : null;
+  const m5  = data?.m5  ? detectStructure(data.m5, 3)  : null;
+
+  const signal = getSniperSignal(h1, m15, m5);
   const loading = !data?.h1;
 
   const trendIcon = t => t === "alcista" ? "▲" : t === "bajista" ? "▼" : "→";
   const trendCol  = t => t === "alcista" ? "#00E676" : t === "bajista" ? "#FF5252" : "#FFD740";
 
+  const getRsiColor = (val) => {
+    if (val >= 70 || val <= 30) return "#FF9100";
+    if (val >= 40 && val <= 60) return "#00E5FF";
+    return "rgba(255, 255, 255, 0.5)";
+  };
+
   return (
     <div style={{
       background:"linear-gradient(135deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%)",
-      border:`1px solid ${loading?"rgba(255,255,255,0.08)":pts>=80?"rgba(0,230,118,0.25)":pts>=60?"rgba(255,215,64,0.2)":"rgba(255,255,255,0.08)"}`,
+      border:`1px solid ${loading ? "rgba(255,255,255,0.08)" : signal ? `${signal.color}44` : "rgba(255,255,255,0.08)"}`,
       borderRadius:16,padding:"18px 20px",display:"flex",flexDirection:"column",gap:14,
-      backdropFilter:"blur(12px)",transition:"border-color 0.5s",
-      boxShadow: pts>=80 ? "0 0 24px rgba(0,230,118,0.08)" : pts>=60 ? "0 0 24px rgba(255,215,64,0.06)" : "none"
+      backdropFilter:"blur(12px)",transition:"border-color 0.4s",
+      boxShadow: signal ? `0 0 24px ${signal.color}11` : "none"
     }}>
-      {/* Header */}
+      {/* Cabecera */}
       <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
         <div style={{display:"flex",alignItems:"center",gap:10}}>
           <div style={{width:8,height:8,borderRadius:"50%",background:sym.color,boxShadow:`0 0 8px ${sym.color}`}}/>
@@ -199,31 +290,31 @@ function SymbolCard({ sym, data, livePrice }) {
           {/* Sparkline */}
           <Sparkline data={data?.m5?.slice(-40)} color={sym.color}/>
 
-          {/* Score + calidad */}
-          <div style={{display:"flex",alignItems:"center",gap:14}}>
-            <ScoreRing value={pts}/>
+          {/* Sniper Signal Indicator */}
+          <div style={{display:"flex",alignItems:"center",gap:14,background:"rgba(255,255,255,0.01)",borderRadius:12,padding:"8px 12px",border:"0.5px solid rgba(255,255,255,0.04)"}}>
+            <SniperScopeIndicator active={!!signal} color={signal?.color}/>
             <div style={{flex:1}}>
-              <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:q.color,marginBottom:4}}>{q.label}</div>
-              <div style={{background:q.bg,borderRadius:6,padding:"4px 8px",display:"inline-block"}}>
-                <span style={{fontSize:10,color:q.color,letterSpacing:"0.04em"}}>{pts}/100</span>
-              </div>
-              <div style={{marginTop:6,fontSize:10,color:"rgba(255,255,255,0.35)"}}>
-                {pts>=80 ? "✦ Entrada válida" : pts>=60 ? "◈ Monitorear" : "✕ Sin estructura"}
-              </div>
+              {signal ? (
+                <>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:signal.color,marginBottom:2}}>{signal.direction} DETECTADA</div>
+                  <div style={{fontSize:12,color:"#fff",fontWeight:500}}>Trigger: <span style={{color:signal.color,fontWeight:600}}>{signal.trigger}</span></div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.35)",marginTop:4}}>Estructura Confirmada</div>
+                </>
+              ) : (
+                <>
+                  <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.12em",color:"rgba(255,255,255,0.3)",marginBottom:2}}>SIN SETUP</div>
+                  <div style={{fontSize:10,color:"rgba(255,255,255,0.25)"}}>Sin confluencia sniper</div>
+                </>
+              )}
             </div>
-            {/* RSI Badge */}
+            
+            {/* RSI 14 (M5) en número plano */}
             {m5?.rsi != null && (
-              <div style={{
-                display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
-                background: m5.rsi >= 70 ? "rgba(255,82,82,0.1)" : m5.rsi <= 30 ? "rgba(0,230,118,0.1)" : "rgba(255,215,64,0.08)",
-                border: `1px solid ${m5.rsi >= 70 ? "rgba(255,82,82,0.3)" : m5.rsi <= 30 ? "rgba(0,230,118,0.3)" : "rgba(255,215,64,0.2)"}`,
-                borderRadius:10,padding:"6px 10px",minWidth:52,
-              }}>
-                <span style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.08em",marginBottom:2}}>RSI</span>
+              <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",justifyContent:"center"}}>
+                <span style={{fontSize:9,color:"rgba(255,255,255,0.35)",letterSpacing:"0.05em"}}>RSI (M5)</span>
                 <span style={{
-                  fontSize:18,fontWeight:700,lineHeight:1,
-                  fontFamily:"'Space Grotesk',sans-serif",
-                  color: m5.rsi >= 70 ? "#FF5252" : m5.rsi <= 30 ? "#00E676" : "#FFD740"
+                  fontSize:13,fontWeight:700,marginTop:2,
+                  color: getRsiColor(m5.rsi)
                 }}>{m5.rsi}</span>
               </div>
             )}
@@ -239,25 +330,20 @@ function SymbolCard({ sym, data, livePrice }) {
                 </div>
                 {d?.bos   && <div style={{fontSize:9,color:"#7C4DFF",marginTop:2}}>● BOS {d.bos}</div>}
                 {d?.choch && <div style={{fontSize:9,color:"#FF4081",marginTop:2}}>◈ CHoCH</div>}
-                {d?.inZone && <div style={{fontSize:9,color:"#00E5FF",marginTop:2}}>⬡ En zona</div>}
               </div>
             ))}
           </div>
 
-          {/* Zonas */}
+          {/* Zonas de Oferta y Demanda */}
           {h1 && (
             <div style={{display:"flex",gap:8}}>
               <div style={{flex:1,background:"rgba(0,230,118,0.07)",border:"0.5px solid rgba(0,230,118,0.2)",borderRadius:8,padding:"6px 10px"}}>
-                <div style={{fontSize:9,color:"rgba(0,230,118,0.6)",letterSpacing:"0.08em",marginBottom:2}}>DEMANDA</div>
+                <div style={{fontSize:9,color:"rgba(0,230,118,0.6)",letterSpacing:"0.08em",marginBottom:2}}>DEMANDA H1</div>
                 <div style={{fontSize:12,color:"#00E676",fontVariantNumeric:"tabular-nums"}}>{h1.demandZone?.toFixed(2) ?? "—"}</div>
               </div>
               <div style={{flex:1,background:"rgba(255,82,82,0.07)",border:"0.5px solid rgba(255,82,82,0.2)",borderRadius:8,padding:"6px 10px"}}>
-                <div style={{fontSize:9,color:"rgba(255,82,82,0.6)",letterSpacing:"0.08em",marginBottom:2}}>OFERTA</div>
+                <div style={{fontSize:9,color:"rgba(255,82,82,0.6)",letterSpacing:"0.08em",marginBottom:2}}>OFERTA H1</div>
                 <div style={{fontSize:12,color:"#FF5252",fontVariantNumeric:"tabular-nums"}}>{h1.supplyZone?.toFixed(2) ?? "—"}</div>
-              </div>
-              <div style={{flex:1,background:"rgba(255,215,64,0.07)",border:"0.5px solid rgba(255,215,64,0.2)",borderRadius:8,padding:"6px 10px"}}>
-                <div style={{fontSize:9,color:"rgba(255,215,64,0.6)",letterSpacing:"0.08em",marginBottom:2}}>IMPULSO</div>
-                <div style={{fontSize:12,color:"#FFD740",fontVariantNumeric:"tabular-nums"}}>{m5?.impulse?.toFixed(3) ?? "—"}%</div>
               </div>
             </div>
           )}
@@ -267,19 +353,22 @@ function SymbolCard({ sym, data, livePrice }) {
   );
 }
 
-// ─── App principal ────────────────────────────────────────────────────────────
+// ─── Aplicación Principal ─────────────────────────────────────────────────────
 export default function DerivScanner() {
-  const [candles, setCandles]     = useState({});    // { symId: { h1, m15, m5 } }
-  const [prices,  setPrices]      = useState({});    // { symId: price }
-  const [status,  setStatus]      = useState("Conectando…");
+  const [candles, setCandles]       = useState({});    // { symId: { h1, m15, m5 } }
+  const [prices,  setPrices]        = useState({});    // { symId: price }
+  const [status,  setStatus]        = useState("Conectando…");
   const [lastUpdate, setLastUpdate] = useState(null);
-  const [filter, setFilter]       = useState("all"); // all | high | mid
+  const [filter, setFilter]         = useState("all"); // all | active
+  const [trendPanelOpen, setTrendPanelOpen] = useState(false);
+  const [activeTrendSym, setActiveTrendSym] = useState("1HZ50V");
+
   const wsRef  = useRef(null);
   const queue  = useRef([]);
   const active = useRef(null);
   const reconnectTimer = useRef(null);
 
-  // Cola de requests (1 a la vez para no saturar WS)
+  // Procesamiento de peticiones sin saturar el canal de WebSockets
   const processQueue = useCallback(() => {
     if (!queue.current.length || active.current) return;
     const req = queue.current.shift();
@@ -331,10 +420,9 @@ export default function DerivScanner() {
 
     ws.onmessage = (e) => {
       const msg = JSON.parse(e.data);
-
       if (msg.error) { active.current = null; processQueue(); return; }
 
-      // Velas históricas
+      // Velas Históricas
       if (msg.msg_type === "candles") {
         const req = active.current;
         if (req?._meta) {
@@ -349,13 +437,38 @@ export default function DerivScanner() {
         processQueue();
       }
 
-      // Ticks en vivo
+      // Ticks en Vivo
       if (msg.msg_type === "tick") {
         const { symbol, quote } = msg.tick;
         setPrices(prev => ({ ...prev, [symbol]: quote }));
+
+        // Actualizar última vela en tiempo real sobre los datos en memoria
+        setCandles(prev => {
+          const symData = prev[symbol];
+          if (!symData) return prev;
+          
+          const updated = { ...symData };
+          const timeframes = ["m5", "m15", "h1"];
+          
+          timeframes.forEach(tf => {
+            if (updated[tf] && updated[tf].length > 0) {
+              const list = [...updated[tf]];
+              const lastIdx = list.length - 1;
+              const lastCandle = list[lastIdx];
+              list[lastIdx] = {
+                ...lastCandle,
+                close: quote,
+                high: Math.max(parseFloat(lastCandle.high), parseFloat(quote)),
+                low: Math.min(parseFloat(lastCandle.low), parseFloat(quote))
+              };
+              updated[tf] = list;
+            }
+          });
+          
+          return { ...prev, [symbol]: updated };
+        });
       }
 
-      // Historia de ticks (ya no usamos)
       if (msg.msg_type === "history") {
         active.current = null;
         processQueue();
@@ -371,33 +484,55 @@ export default function DerivScanner() {
 
   useEffect(() => {
     connect();
-    const refreshInterval = setInterval(fetchAll, 60000); // refresh cada 60s
+    const refreshInterval = setInterval(fetchAll, 60000); // Actualización de estructura cada 60s
     return () => {
       clearInterval(refreshInterval);
       clearTimeout(reconnectTimer.current);
       wsRef.current?.close();
     };
-  }, []);
+  }, [connect, fetchAll]);
 
-  // Calcular scores para filtro
+  // Cálculo de señales para el listado de tarjetas
   const scored = SYMBOLS.map(s => {
     const d   = candles[s.id];
-    const h1  = d?.h1  ? detectStructure(d.h1)  : null;
-    const m15 = d?.m15 ? detectStructure(d.m15) : null;
-    const m5  = d?.m5  ? detectStructure(d.m5)  : null;
-    const pts = h1 && m15 && m5 ? score(h1, m15, m5) : 0;
-    return { ...s, pts, h1trend: h1?.trend, rsi: m5?.rsi };
+    const h1  = d?.h1  ? detectStructure(d.h1, 5)  : null;
+    const m15 = d?.m15 ? detectStructure(d.m15, 4) : null;
+    const m5  = d?.m5  ? detectStructure(d.m5, 3)  : null;
+    const signal = getSniperSignal(h1, m15, m5);
+    return { ...s, signal, h1, m15, m5 };
   });
 
   const filtered = scored.filter(s => {
-    if (filter === "high") return s.pts >= 80;
-    if (filter === "mid")  return s.pts >= 60 && s.pts < 80;
-    if (filter === "trend") return s.h1trend === "alcista" || s.h1trend === "bajista";
+    if (filter === "active") return s.signal !== null;
     return true;
   });
 
-  const highCount = scored.filter(s => s.pts >= 80).length;
-  const midCount  = scored.filter(s => s.pts >= 60 && s.pts < 80).length;
+  const activeCount = scored.filter(s => s.signal !== null).length;
+  const idleCount   = scored.filter(s => s.signal === null).length;
+
+  // Lógica del Panel de Tendencia sobre el Símbolo Activo
+  const activeSymData = candles[activeTrendSym];
+  const activeH1 = activeSymData?.h1 ? detectStructure(activeSymData.h1, 5) : null;
+  const activeM5 = activeSymData?.m5 ? detectStructure(activeSymData.m5, 3) : null;
+
+  let trendTipColor = "#00E676"; // Por defecto, tendencia estable (verde)
+  if (activeM5) {
+    const lastHigh = activeM5.supplyZone;
+    const lastLow = activeM5.demandZone;
+    const nearHigh = lastHigh && Math.abs(activeM5.lastClose - lastHigh) / lastHigh <= 0.01;
+    const nearLow = lastLow && Math.abs(activeM5.lastClose - lastLow) / lastLow <= 0.01;
+    
+    // Proximidad al cambio estructural (dentro del +-1% de un swing anterior)
+    if (nearHigh || nearLow) {
+      trendTipColor = "#FFD740"; // Amarillo
+    }
+
+    // Señal potencial de cambio (BOS contrario o CHoCH en M5)
+    const isOppositeBOS = activeH1 && activeM5.bos && activeM5.bos !== activeH1.trend;
+    if (activeM5.choch || isOppositeBOS) {
+      trendTipColor = "#FF5252"; // Rojo
+    }
+  }
 
   return (
     <div style={{
@@ -417,7 +552,7 @@ export default function DerivScanner() {
         button { cursor: pointer; border: none; outline: none; font-family: inherit; }
       `}</style>
 
-      {/* Header */}
+      {/* Cabecera de la Aplicación */}
       <div style={{maxWidth:900,margin:"0 auto 28px"}}>
         <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
           <div>
@@ -426,28 +561,24 @@ export default function DerivScanner() {
               <span style={{fontSize:10,color:"rgba(255,255,255,0.35)",letterSpacing:"0.15em",textTransform:"uppercase"}}>{status}</span>
             </div>
             <h1 style={{fontFamily:"'Space Grotesk',sans-serif",fontSize:26,fontWeight:700,letterSpacing:"-0.02em",lineHeight:1.1,color:"#fff"}}>
-              Estructura & PA
-              <span style={{color:"rgba(255,255,255,0.25)",fontWeight:400}}> · Escáner</span>
+              Sniper PA
+              <span style={{color:"rgba(255,255,255,0.25)",fontWeight:400}}> · Estructuras Cascadas</span>
             </h1>
             <p style={{fontSize:12,color:"rgba(255,255,255,0.3)",marginTop:5,letterSpacing:"0.02em"}}>
-              V50 · V75 · V100 · 1s — Deriv Synthetic Indices
+              V50 · V75 · V100 · 1s — Filtros puros sin ambigüedad
             </p>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8}}>
-            {/* Stats rápidos */}
+            {/* Contadores */}
             <div style={{display:"flex",gap:8}}>
               <div style={{background:"rgba(0,230,118,0.1)",border:"1px solid rgba(0,230,118,0.2)",borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:700,color:"#00E676"}}>{highCount}</div>
-                <div style={{fontSize:9,color:"rgba(0,230,118,0.6)",letterSpacing:"0.08em"}}>ALTA</div>
-              </div>
-              <div style={{background:"rgba(255,215,64,0.1)",border:"1px solid rgba(255,215,64,0.2)",borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:700,color:"#FFD740"}}>{midCount}</div>
-                <div style={{fontSize:9,color:"rgba(255,215,64,0.6)",letterSpacing:"0.08em"}}>MEDIA</div>
+                <div style={{fontSize:18,fontWeight:700,color:"#00E676"}}>{activeCount}</div>
+                <div style={{fontSize:9,color:"rgba(0,230,118,0.6)",letterSpacing:"0.08em"}}>CON SETUP</div>
               </div>
               <div style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:8,padding:"6px 12px",textAlign:"center"}}>
-                <div style={{fontSize:18,fontWeight:700,color:"rgba(255,255,255,0.5)"}}>{scored.filter(s=>s.pts<60).length}</div>
-                <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.08em"}}>DESCARTE</div>
+                <div style={{fontSize:18,fontWeight:700,color:"rgba(255,255,255,0.4)"}}>{idleCount}</div>
+                <div style={{fontSize:9,color:"rgba(255,255,255,0.3)",letterSpacing:"0.08em"}}>BUSCANDO</div>
               </div>
             </div>
             {lastUpdate && (
@@ -458,60 +589,123 @@ export default function DerivScanner() {
           </div>
         </div>
 
-        {/* Filtros */}
-        <div style={{display:"flex",gap:6,marginTop:16,flexWrap:"wrap"}}>
-          {[["all","Todos"],["high","Alta ≥80"],["mid","Media ≥60"],["trend","Tendencia"]].map(([k,l])=>(
-            <button key={k} onClick={()=>setFilter(k)} style={{
+        {/* Barra de Filtros */}
+        <div style={{display:"flex",gap:6,marginTop:16,flexWrap:"wrap",alignItems:"center"}}>
+          {[["all","Todos"], ["active","Setups Sniper"]].map(([k,l])=>(
+            <button key={k} onClick={()=>{ setFilter(k); setTrendPanelOpen(false); }} style={{
               padding:"6px 14px",borderRadius:20,fontSize:11,fontWeight:500,letterSpacing:"0.06em",
-              background: filter===k ? (k==="trend"?"rgba(0,229,255,0.18)":"rgba(255,255,255,0.12)") : "rgba(255,255,255,0.04)",
-              color: filter===k ? (k==="trend"?"#00E5FF":"#fff") : "rgba(255,255,255,0.4)",
-              border: `1px solid ${filter===k?(k==="trend"?"rgba(0,229,255,0.35)":"rgba(255,255,255,0.2)"):"rgba(255,255,255,0.06)"}`,
+              background: filter===k && !trendPanelOpen ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
+              color: filter===k && !trendPanelOpen ? "#fff" : "rgba(255,255,255,0.4)",
+              border: `1px solid ${filter===k && !trendPanelOpen ?"rgba(255,255,255,0.2)":"rgba(255,255,255,0.06)"}`,
               transition:"all 0.2s"
             }}>{l}</button>
           ))}
+
+          {/* Botón Tendencia */}
+          <button onClick={() => setTrendPanelOpen(!trendPanelOpen)} style={{
+            padding:"6px 14px",borderRadius:20,fontSize:11,fontWeight:500,letterSpacing:"0.06em",
+            background: trendPanelOpen ? "rgba(0,229,255,0.15)" : "rgba(255,255,255,0.04)",
+            color: trendPanelOpen ? "#00E5FF" : "rgba(255,255,255,0.4)",
+            border: `1px solid ${trendPanelOpen ? "rgba(0,229,255,0.3)" : "rgba(255,255,255,0.06)"}`,
+            transition:"all 0.2s"
+          }}>
+            📈 Tendencia
+          </button>
+
           <button onClick={fetchAll} style={{
             padding:"6px 14px",borderRadius:20,fontSize:11,fontWeight:500,letterSpacing:"0.06em",
             background:"rgba(124,77,255,0.15)",color:"rgba(124,77,255,0.9)",
             border:"1px solid rgba(124,77,255,0.3)",transition:"all 0.2s",marginLeft:"auto"
           }}>↺ Actualizar</button>
         </div>
+
+        {/* Panel Desplegable de Tendencia en Vivo */}
+        {trendPanelOpen && (
+          <div style={{
+            background: "linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.00) 100%)",
+            border: "1px solid rgba(255,255,255,0.08)",
+            borderRadius: 12,
+            padding: "12px 16px",
+            marginTop: 12,
+            maxHeight: 125,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            overflow: "hidden",
+            transition: "all 0.3s ease-in-out"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                {SYMBOLS.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => setActiveTrendSym(s.id)}
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: 20,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      background: activeTrendSym === s.id ? s.color : "rgba(255,255,255,0.05)",
+                      color: activeTrendSym === s.id ? "#080C14" : "rgba(255,255,255,0.6)",
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#00E676" }} /> Estable
+                </span>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#FFD740" }} /> Zona Cercana (1%)
+                </span>
+                <span style={{ fontSize: 9, color: "rgba(255,255,255,0.4)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ display: "inline-block", width: 6, height: 6, borderRadius: "50%", background: "#FF5252" }} /> Posible Cambio
+                </span>
+              </div>
+            </div>
+
+            {/* Renderizar Gráfico de Línea de Precio M5 */}
+            <LiveTrendChart
+              m5Data={candles[activeTrendSym]?.m5}
+              tipColor={trendTipColor}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Grid de tarjetas */}
+      {/* Grid de Tarjetas */}
       <div style={{maxWidth:900,margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(270px,1fr))",gap:14}}>
         {filtered.map(sym => (
           <SymbolCard key={sym.id} sym={sym} data={candles[sym.id]} livePrice={prices[sym.id]}/>
         ))}
         {filtered.length === 0 && (
           <div style={{gridColumn:"1/-1",textAlign:"center",padding:"60px 20px",color:"rgba(255,255,255,0.2)",fontSize:13}}>
-            No hay señales con ese filtro en este momento.
+            No hay setups válidos en este momento que cumplan con la cascada sniper.
           </div>
         )}
       </div>
 
-      {/* Leyenda sistema de puntuación */}
-      <div style={{maxWidth:900,margin:"28px auto 0",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:12,padding:"16px 20px"}}>
-        <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",letterSpacing:"0.12em",marginBottom:12,textTransform:"uppercase"}}>Sistema de puntuación</div>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(160px,1fr))",gap:8}}>
-          {[
-            ["Estructura H1","25 pts","#7C4DFF"],
-            ["Confirmación M15","20 pts","#00E5FF"],
-            ["Zona relevante","25 pts","#FF4081"],
-            ["CHoCH / BOS M5","20 pts","#FFD740"],
-            ["Impulso","10 pts","#00E676"],
-          ].map(([k,v,c])=>(
-            <div key={k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <span style={{fontSize:11,color:"rgba(255,255,255,0.35)"}}>{k}</span>
-              <span style={{fontSize:11,fontWeight:600,color:c}}>{v}</span>
-            </div>
-          ))}
+      {/* Leyenda y Filosofía de Operación */}
+      <div style={{maxWidth:900,margin:"28px auto 0",background:"rgba(255,255,255,0.01)",border:"1px solid rgba(255,255,255,0.04)",borderRadius:12,padding:"16px 20px"}}>
+        <div style={{fontSize:10,color:"rgba(255,255,255,0.25)",letterSpacing:"0.12em",marginBottom:10,textTransform:"uppercase"}}>Cascada Estructural Sniper</div>
+        <div style={{fontSize:11,color:"rgba(255,255,255,0.45)",lineHeight:1.6}}>
+          Este escáner opera bajo la filosofía de <strong style={{color:"#00E676"}}>Filtros Duros en Cascada</strong>. Ninguna señal parcial o incompleta se puntúa; si un solo componente estructural falla, el setup se descarta automáticamente.
+          <ul style={{marginTop:6, paddingLeft:14, display:"flex", flexDirection:"column", gap:2}}>
+            <li>• H1 define la tendencia dominante y las zonas de oferta/demanda con ventanas de 5 velas.</li>
+            <li>• M15 valida la alineación tendencial y de quiebre (BOS) con al menos 4 swings confirmados.</li>
+            <li>• El precio debe encontrarse en la zona óptima de H1 (<span style={{color:"#00E5FF"}}>tolerancia ±0.2%</span>).</li>
+            <li>• M5 entrega el gatillo final en la dirección mayoritaria a través de un BOS o CHoCH.</li>
+          </ul>
         </div>
       </div>
 
-      {/* Footer filosofía */}
+      {/* Footer */}
       <div style={{maxWidth:900,margin:"16px auto 0",textAlign:"center",padding:"12px 0"}}>
         <p style={{fontSize:10,color:"rgba(255,255,255,0.15)",letterSpacing:"0.08em",lineHeight:1.8}}>
-          EL PRECIO MANDA · LA ESTRUCTURA CONFIRMA · LA ACCIÓN DE PRECIO EJECUTA
+          FILTRADO EN CASCADA · MÁXIMA PRECISIÓN · SIN AMBIGÜEDAD
         </p>
       </div>
     </div>
