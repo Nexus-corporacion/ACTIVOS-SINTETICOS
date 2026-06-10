@@ -36,7 +36,8 @@
       { id: "1HZ100V", label: "V100 1s", color: "#FF4081" },
     ];
 
-    const DERIV_WS = "wss://ws.binaryws.com/websockets/v3?app_id=1089";
+    // Ajustado a app_id 1088 para asegurar compatibilidad y recepción de datos
+    const DERIV_WS = "wss://ws.binaryws.com/websockets/v3?app_id=1088";
 
     // ─── Estructura de mercado adaptada a ventana variable por Timeframe ───────────
     function detectStructure(candles, windowSize = 3) {
@@ -436,8 +437,19 @@
 
         ws.onmessage = (e) => {
           const msg = JSON.parse(e.data);
-          if (msg.error) { active.current = null; processQueue(); return; }
+          
+          // Log general de mensajes recibidos de Deriv
+          console.log("MSG RECIBIDO:", msg);
 
+          // Reiniciar de seguridad ante cualquier mensaje con error del servidor
+          if (msg.error) {
+            console.log("WS ERROR MSG RECEIVED:", msg.error);
+            active.current = null;
+            processQueue();
+            return;
+          }
+
+          // Velas Históricas
           if (msg.msg_type === "candles") {
             const req = active.current;
             if (req?._meta) {
@@ -447,11 +459,13 @@
                 [symId]: { ...(prev[symId] || {}), [tfKey]: msg.candles }
               }));
             }
+            // Liberación limpia de la cola
             active.current = null;
             setLastUpdate(new Date());
             processQueue();
           }
 
+          // Ticks en Vivo
           if (msg.msg_type === "tick") {
             const { symbol, quote } = msg.tick;
             setPrices(prev => ({ ...prev, [symbol]: quote }));
@@ -480,16 +494,31 @@
               
               return { ...prev, [symbol]: updated };
             });
+
+            // Liberación de la cola al recibir el primer tick de la subscripción activa
+            if (active.current && active.current._meta?.type === "tick" && active.current._meta?.symId === symbol) {
+              console.log(`[Queue] Subscripción de ticks inicializada para: ${symbol}. Liberando cola.`);
+              active.current = null;
+              processQueue();
+            }
           }
 
+          // Fallback de seguridad: reiniciar active.current ante respuestas con echo_req coherentes
           if (msg.msg_type === "history") {
             active.current = null;
             processQueue();
           }
         };
 
-        ws.onerror = () => setStatus("Error de conexión");
-        ws.onclose = () => {
+        // Captura de errores del WebSocket
+        ws.onerror = (e) => {
+          console.log("WS ERROR:", e);
+          setStatus("Error de conexión");
+        };
+
+        // Captura de cierre del WebSocket
+        ws.onclose = (e) => {
+          console.log("WS CLOSED:", e.code, e.reason);
           setStatus("Reconectando…");
           reconnectTimer.current = setTimeout(connect, 4000);
         };
@@ -640,7 +669,7 @@
                 overflow: "hidden",
                 transition: "all 0.3s ease-in-out"
               }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyValue: "space-between" }}>
                   <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                     {SYMBOLS.map(s => (
                       <button
