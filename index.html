@@ -380,6 +380,14 @@
             '1HZ100V': { h1: [], m15: [], m5: [], price: 0, analysis: null }
         };
 
+        // SISTEMA DE POSICIONES PERSISTENTES EN MEMORIA (MÁQUINA DE ESTADOS)
+        // Estados posibles: 'IDLE', 'ACTIVE', 'INVALIDATED', 'CLOSED_TP', 'CLOSED_SL'
+        const positions = {
+            '1HZ50V': null,
+            '1HZ75V': null,
+            '1HZ100V': null
+        };
+
         // RELOJ GLOBAL DE TIEMPO
         setInterval(() => {
             const now = new Date();
@@ -638,7 +646,12 @@
                 }
             }
 
+            // Primero analizamos la estructura y el score
             analyzeSymbol(symbolId);
+
+            // Después gestionamos la posición en base al análisis actual y tick en vivo
+            manageActivePosition(symbolId, price);
+
             updateRSIWidgets();
         }
 
@@ -754,11 +767,186 @@
                 scores: { scoreH1, scoreM15, scoreZone, scoreM5, impulseScore, totalScore }
             };
 
-            updateSidebarWidget(symbolId, totalScore, h1Trend, nearSupport || nearResistance);
+            // Solo actualizamos el estado de la barra lateral si no hay una posición activa que tome prioridad
+            const pos = positions[symbolId];
+            if (!pos || pos.state === 'IDLE') {
+                updateSidebarWidget(symbolId, totalScore, h1Trend, nearSupport || nearResistance);
+            }
             
             if (symbolId === activeSymbol) {
                 updateScoringUI(data.analysis, currentPrice);
             }
+        }
+
+        // NUEVO MOTOR DE GESTIÓN Y SEGUIMIENTO DE POSICIONES PERSISTENTES
+        function manageActivePosition(symbolId, price) {
+            const data = db[symbolId];
+            const analysis = data.analysis;
+            if (!analysis) return;
+
+            let pos = positions[symbolId];
+
+            // 1. SI NO HAY POSICIÓN: Buscar gatillo de apertura si score >= 80 (Fase: SIN POSICIÓN)
+            if (!pos || pos.state === 'IDLE') {
+                if (analysis.scores.totalScore >= 80) {
+                    let direction = "";
+                    let sl = 0;
+                    let tp = 0;
+
+                    if (analysis.nearSupport && analysis.h1Trend === 'BULLISH') {
+                        direction = "BUY";
+                        sl = analysis.targetZone - (analysis.targetZone * 0.0015);
+                        const risk = price - sl;
+                        tp = price + (risk * 3.2);
+                    } else if (analysis.nearResistance && analysis.h1Trend === 'BEARISH') {
+                        direction = "SELL";
+                        sl = analysis.targetZone + (analysis.targetZone * 0.0015);
+                        const risk = sl - price;
+                        tp = price - (risk * 3.2);
+                    }
+
+                    if (direction) {
+                        positions[symbolId] = {
+                            state: 'ACTIVE',
+                            direction: direction,
+                            entryPrice: price,
+                            sl: sl,
+                            tp: tp,
+                            initialSl: sl,
+                            initialTp: tp,
+                            originZone: analysis.targetZone,
+                            timestamp: Date.now(),
+                            highestPrice: price,
+                            lowestPrice: price,
+                            invalidationReason: ""
+                        };
+                        playSignalChirp();
+                        logMessage(symbolId, `🟢 POSICIÓN ABIERTA: ${direction} a precio ${price.toFixed(4)} | SL: ${sl.toFixed(4)} | TP: ${tp.toFixed(4)} (Origen H1: ${analysis.targetZone.toFixed(2)})`, 'success');
+                    }
+                }
+                return;
+            }
+
+            // 2. SI LA POSICIÓN ESTÁ ACTIVA: Hacer seguimiento de salida estructural, trailing stop e hit de SL/TP
+            if (pos.state === 'ACTIVE') {
+                // Actualizar máximos/mínimos alcanzados para cálculos de avance e impulso
+                if (price > pos.highestPrice) pos.highestPrice = price;
+                if (price < pos.lowestPrice) pos.lowestPrice = price;
+
+                // A) Verificar objetivos fijos de salida (SL / TP)
+                if (pos.direction === 'BUY') {
+                    if (price >= pos.tp) {
+                        pos.state = 'CLOSED_TP';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (TAKE PROFIT alcanzado) en ${price.toFixed(4)}`, 'success');
+                        playSignalChirp();
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (price <= pos.sl) {
+                        pos.state = 'CLOSED_SL';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (STOP LOSS alcanzado) en ${price.toFixed(4)}`, 'warn');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                } else if (pos.direction === 'SELL') {
+                    if (price <= pos.tp) {
+                        pos.state = 'CLOSED_TP';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (TAKE PROFIT alcanzado) en ${price.toFixed(4)}`, 'success');
+                        playSignalChirp();
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (price >= pos.sl) {
+                        pos.state = 'CLOSED_SL';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (STOP LOSS alcanzado) en ${price.toFixed(4)}`, 'warn');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                }
+
+                // B) Gestión Estructural Activa (Invalidación sin tocar SL/TP)
+                // Invalidation de tendencia macro H1 o M15 invertida
+                if (pos.direction === 'BUY' && (analysis.h1Trend === 'BEARISH' || analysis.m15Trend === 'BEARISH')) {
+                    pos.state = 'INVALIDATED';
+                    pos.invalidationReason = "Estructura Macro revertida a Bajista";
+                    logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre inmediato a mercado: ${price.toFixed(4)}`, 'alert');
+                    startClearTimer(symbolId);
+                    return;
+                }
+                if (pos.direction === 'SELL' && (analysis.h1Trend === 'BULLISH' || analysis.m15Trend === 'BULLISH')) {
+                    pos.state = 'INVALIDATED';
+                    pos.invalidationReason = "Estructura Macro revertida a Alcista";
+                    logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre inmediato a mercado: ${price.toFixed(4)}`, 'alert');
+                    startClearTimer(symbolId);
+                    return;
+                }
+
+                // Invalidation por quiebre definitivo del soporte/resistencia origen (Cierre vela M5 debajo de soporte o encima de resistencia)
+                const lastM5Candle = data.m5[data.m5.length - 1];
+                if (lastM5Candle) {
+                    if (pos.direction === 'BUY' && lastM5Candle.close < pos.originZone) {
+                        pos.state = 'INVALIDATED';
+                        pos.invalidationReason = "Ruptura del Soporte H1 origen";
+                        logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre a ${price.toFixed(4)}`, 'alert');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (pos.direction === 'SELL' && lastM5Candle.close > pos.originZone) {
+                        pos.state = 'INVALIDATED';
+                        pos.invalidationReason = "Ruptura de la Resistencia H1 origen";
+                        logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre a ${price.toFixed(4)}`, 'alert');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                }
+
+                // C) Trailing Stop Estructural Basado en Fractales Locales M5 (Garantizar ganancia)
+                const m5Fractals = identifyFractals(data.m5);
+                if (pos.direction === 'BUY') {
+                    const m5Lows = m5Fractals.lows.map(f => f.price);
+                    if (m5Lows.length > 0) {
+                        const latestLow = m5Lows[m5Lows.length - 1];
+                        // Arrastrar SL si el nuevo fractal mínimo está por encima del SL actual y del precio de entrada
+                        if (latestLow > pos.sl && latestLow > pos.entryPrice && latestLow < price) {
+                            pos.sl = latestLow;
+                            logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a mínimo M5: ${latestLow.toFixed(4)}`, 'success');
+                        }
+                    }
+                } else if (pos.direction === 'SELL') {
+                    const m5Highs = m5Fractals.highs.map(f => f.price);
+                    if (m5Highs.length > 0) {
+                        const latestHigh = m5Highs[m5Highs.length - 1];
+                        // Arrastrar SL si el nuevo fractal máximo está por debajo del SL actual y del precio de entrada
+                        if (latestHigh < pos.sl && latestHigh < pos.entryPrice && latestHigh > price) {
+                            pos.sl = latestHigh;
+                            logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a máximo M5: ${latestHigh.toFixed(4)}`, 'success');
+                        }
+                    }
+                }
+
+                // Actualizar UI del widget lateral para reflejar posición activa
+                const badge = document.getElementById(`score-badge-${symbolId}`);
+                if (badge) {
+                    badge.textContent = pos.direction;
+                    badge.className = pos.direction === 'BUY'
+                        ? "font-mono text-[10px] bg-cyber-green/20 border border-cyber-green text-cyber-green px-2 py-0.5 rounded font-bold animate-pulse"
+                        : "font-mono text-[10px] bg-cyber-red/20 border border-cyber-red text-cyber-red px-2 py-0.5 rounded font-bold animate-pulse";
+                }
+                const statusText = document.getElementById(`status-${symbolId}`);
+                if (statusText) {
+                    statusText.textContent = "POSICIÓN ACTIVA";
+                    statusText.className = "px-2 py-0.5 rounded-full bg-cyber-blue/10 border border-cyber-blue/40 text-cyber-blue text-[9px] font-bold";
+                }
+            }
+        }
+
+        // Temporizador para limpiar la posición cerrada y retornar al estado de búsqueda tras 10 segundos
+        function startClearTimer(symbolId) {
+            setTimeout(() => {
+                positions[symbolId] = { state: 'IDLE' };
+                logMessage(symbolId, "Retornando a escaneo de mercado de alta precisión. Esperando Setup...");
+                analyzeSymbol(symbolId);
+            }, 10000);
         }
 
         // FRACTALES DE 5 VELAS
@@ -784,7 +972,7 @@
             return { highs, lows };
         }
 
-        // DETERMINACIÓN DE LA TENDENCIA MACRO (HH-HL / LH-LL)
+        // DETERMINACIÓN DE LA TENDENCIA POR PIVOTES DE ESTRUCTURA
         function determineTrend(highs, lows) {
             if (highs.length < 2 || lows.length < 2) return 'LATERAL';
             
@@ -798,7 +986,7 @@
             return 'LATERAL';
         }
 
-        // CALCULO MATEMÁTICO REAL DEL RSI (14)
+        // CÁLCULO MATEMÁTICO REAL DEL RSI (14)
         function calculateRSI(candles, period = 14) {
             if (candles.length < period + 1) return 50.0;
             
@@ -1084,39 +1272,125 @@
             }
         }
 
-        // COCKPIT DE DECISIÓN Y ENTRADAS DE COMPRA/VENTA
-        let alertTriggered = {};
-
+        // COCKPIT PRINCIPAL DE DECISIÓN (ACTUALIZADO PARA SEGUIMIENTO DE LA POSICIÓN EN TIEMPO REAL)
         function updateScoringUI(analysis, currentPrice) {
             const scoreCircle = document.getElementById('score-circle');
             const scoreText = document.getElementById('score-text');
             const qualityBadge = document.getElementById('quality-badge');
 
+            const opAction = document.getElementById('op-action');
+            const opPrice = document.getElementById('op-price');
+            const opSL = document.getElementById('op-sl');
+            const opTP = document.getElementById('op-tp');
+            const triggerPanel = document.getElementById('trigger-panel');
+
             if (!analysis) return;
 
-            const scores = analysis.scores;
-            scoreText.textContent = scores.totalScore;
+            const pos = positions[activeSymbol];
 
-            const strokeOffset = 390 - (390 * scores.totalScore) / 100;
-            scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
+            // A) INTERFAZ CUANDO HAY POSICIÓN ACTIVA
+            if (pos && pos.state === 'ACTIVE') {
+                // Calcular progreso porcentual hacia TP estructural (0% a 100%)
+                let progress = 0;
+                if (pos.direction === 'BUY') {
+                    const totalDist = pos.tp - pos.entryPrice;
+                    const currentDist = currentPrice - pos.entryPrice;
+                    progress = (currentDist / totalDist) * 100;
+                } else {
+                    const totalDist = pos.entryPrice - pos.tp;
+                    const currentDist = pos.entryPrice - currentPrice;
+                    progress = (currentDist / totalDist) * 100;
+                }
+                progress = Math.max(0, Math.min(100, progress)); // Forzar límites
 
-            if (scores.totalScore >= 80) {
-                qualityBadge.textContent = "ALTA CALIDAD (SNIPER)";
-                qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
-                scoreCircle.setAttribute('stroke', '#00e676');
-                triggerSniperAction(analysis, currentPrice);
-            } else if (scores.totalScore >= 60) {
-                qualityBadge.textContent = "CALIDAD MEDIA (VIGILAR)";
-                qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-gold/15 border border-cyber-gold text-cyber-gold inline-block text-[11px] font-mono font-bold tracking-widest";
-                scoreCircle.setAttribute('stroke', '#ffb300');
-                resetTriggerPanel();
+                // Actualizar anillo de score para mostrar avance de la posición
+                scoreText.textContent = `${Math.round(progress)}%`;
+                const strokeOffset = 390 - (390 * progress) / 100;
+                scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
+
+                if (pos.direction === 'BUY') {
+                    qualityBadge.textContent = "POSICIÓN BUY ACTIVA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+
+                    opAction.textContent = "BUY (ACTIVA)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-green text-glow";
+                    triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-green bg-[#0e1210] relative overflow-hidden glow-green";
+                } else {
+                    qualityBadge.textContent = "POSICIÓN SELL ACTIVA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-red/15 border border-cyber-red text-cyber-red inline-block text-[11px] font-mono font-bold tracking-widest glow-red animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#ff3366');
+
+                    opAction.textContent = "SELL (ACTIVA)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-red text-glow";
+                    triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-red bg-[#160e10] relative overflow-hidden glow-red";
+                }
+
+                // Reflejar datos persistentes de la entrada en el cockpit inferior (incluyendo el Trailing SL en directo)
+                opPrice.textContent = pos.entryPrice.toFixed(4);
+                opSL.textContent = pos.sl.toFixed(4);
+                opTP.textContent = pos.tp.toFixed(4);
+
+            // B) INTERFAZ EN CASO DE POSICIÓN CERRADA / INVALIDADA RECIENTEMENTE (CONGELADA POR 10S)
+            } else if (pos && pos.state !== 'IDLE') {
+                scoreText.textContent = "0%";
+                scoreCircle.setAttribute('stroke-dashoffset', 390);
+
+                if (pos.state === 'CLOSED_TP') {
+                    qualityBadge.textContent = "TP ALCANZADO (ÉXITO)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+
+                    opAction.textContent = "CERRADA (TP)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-green text-glow";
+                } else if (pos.state === 'CLOSED_SL') {
+                    qualityBadge.textContent = "SL ALCANZADO (PÉRDIDA)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-red/15 border border-cyber-red text-cyber-red inline-block text-[11px] font-mono font-bold tracking-widest glow-red";
+                    scoreCircle.setAttribute('stroke', '#ff3366');
+
+                    opAction.textContent = "CERRADA (SL)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-red text-glow";
+                } else if (pos.state === 'INVALIDATED') {
+                    qualityBadge.textContent = "ESTRUCTURA ROTA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-gold/15 border border-cyber-gold text-cyber-gold inline-block text-[11px] font-mono font-bold tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#ffb300');
+
+                    opAction.textContent = "INVALIDADA";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-gold";
+                }
+
+                opPrice.textContent = pos.entryPrice.toFixed(4);
+                opSL.textContent = pos.sl.toFixed(4);
+                opTP.textContent = pos.tp.toFixed(4);
+                triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-border bg-[#0e1210] relative overflow-hidden";
+
+            // C) INTERFAZ SIN POSICIÓN (MODO ESCÁNER BUSCANDO SETUP DE ALTA CALIDAD)
             } else {
-                qualityBadge.textContent = "SINOPSIS: ESPERANDO";
-                qualityBadge.className = "px-4 py-1.5 rounded bg-[#121614] border border-cyber-border text-gray-500 inline-block text-[11px] font-mono tracking-widest";
-                scoreCircle.setAttribute('stroke', '#475569');
+                const scores = analysis.scores;
+                scoreText.textContent = scores.totalScore;
+
+                const strokeOffset = 390 - (390 * scores.totalScore) / 100;
+                scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
+
+                if (scores.totalScore >= 80) {
+                    qualityBadge.textContent = "ALTA CALIDAD (SNIPER)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+                } else if (scores.totalScore >= 60) {
+                    qualityBadge.textContent = "CALIDAD MEDIA (VIGILAR)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-gold/15 border border-cyber-gold text-cyber-gold inline-block text-[11px] font-mono font-bold tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#ffb300');
+                } else {
+                    qualityBadge.textContent = "SINOPSIS: ESPERANDO";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-[#121614] border border-cyber-border text-gray-500 inline-block text-[11px] font-mono tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#475569');
+                }
+
                 resetTriggerPanel();
             }
 
+            // Matrices de decisión H1/M15/M5 (Se mantienen operando al fondo independientemente del estado de la posición)
+            const scores = analysis.scores;
             document.getElementById('score-h1').textContent = `${scores.scoreH1}/25 PTS`;
             document.getElementById('score-h1').className = scores.scoreH1 > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
             document.getElementById('h1-details').textContent = analysis.h1Trend !== 'LATERAL' ? `Tendencia Clara: ${analysis.h1Trend}` : "No Operar: Estructura Lateral";
@@ -1136,51 +1410,6 @@
             document.getElementById('score-impulse').textContent = `${scores.impulseScore}/10 PTS`;
             document.getElementById('score-impulse').className = scores.impulseScore > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
             document.getElementById('impulse-details').textContent = scores.impulseScore > 0 ? "Presión Fuerte Direccional" : "Falta de Volumen / Impulso";
-        }
-
-        // DISPARADOR DE OPERACIÓN (COMPRA / VENTA)
-        function triggerSniperAction(analysis, currentPrice) {
-            const opAction = document.getElementById('op-action');
-            const opPrice = document.getElementById('op-price');
-            const opSL = document.getElementById('op-sl');
-            const opTP = document.getElementById('op-tp');
-            const triggerPanel = document.getElementById('trigger-panel');
-
-            let direction = "";
-            let sl = 0;
-            let tp = 0;
-
-            if (analysis.nearSupport && analysis.h1Trend === 'BULLISH') {
-                direction = "COMPRA (BUY)";
-                opAction.className = "text-lg font-mono font-bold text-cyber-green text-glow";
-                sl = analysis.targetZone - (analysis.targetZone * 0.0015);
-                const risk = currentPrice - sl;
-                tp = currentPrice + (risk * 3.2);
-                triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-green bg-[#0e1210] relative overflow-hidden glow-green";
-            } else if (analysis.nearResistance && analysis.h1Trend === 'BEARISH') {
-                direction = "VENTA (SELL)";
-                opAction.className = "text-lg font-mono font-bold text-cyber-red text-glow";
-                sl = analysis.targetZone + (analysis.targetZone * 0.0015);
-                const risk = sl - currentPrice;
-                tp = currentPrice - (risk * 3.2);
-                triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-red bg-[#160e10] relative overflow-hidden glow-red";
-            } else {
-                resetTriggerPanel();
-                return;
-            }
-
-            opAction.textContent = direction;
-            opPrice.textContent = currentPrice.toFixed(4);
-            opSL.textContent = sl.toFixed(4);
-            opTP.textContent = tp.toFixed(4);
-
-            const alertKey = `${activeSymbol}-${analysis.targetZone}-${direction}`;
-            if (!alertTriggered[alertKey]) {
-                playSignalChirp();
-                logMessage(activeSymbol, `¡ALERTA SNIPER GATILLADA! Dirección: ${direction} | Entrada: ${currentPrice.toFixed(4)} | SL: ${sl.toFixed(4)} | TP: ${tp.toFixed(4)}`, 'success');
-                alertTriggered[alertKey] = true;
-                setTimeout(() => { delete alertTriggered[alertKey]; }, 120000); 
-            }
         }
 
         function resetTriggerPanel() {
