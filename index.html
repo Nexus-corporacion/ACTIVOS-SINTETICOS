@@ -181,9 +181,17 @@
                     </ul>
                 </div>
 
-                <!-- CONTENEDOR DE 3 CUADROS DE RSI EN VIVO (OK) -->
+                <!-- CONTENEDOR DE 3 CUADROS DE RSI EN VIVO CONFIGURABLE -->
                 <div class="mt-4 pt-3 border-t border-cyber-border">
-                    <div class="text-[10px] font-mono tracking-wider text-gray-500 uppercase mb-2">Osciladores RSI (14) M5 en Vivo</div>
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="text-[10px] font-mono tracking-wider text-gray-500 uppercase">RSI (14) en Vivo</div>
+                        <!-- Selector de Timeframe Configurable para el RSI -->
+                        <select id="rsi-tf-select" onchange="changeRSITimeframe()" class="bg-[#070908] border border-cyber-border text-[9px] font-mono text-cyber-green rounded px-1.5 py-0.5 outline-none focus:border-cyber-green/50 transition cursor-pointer">
+                            <option value="m5" selected>M5 (5 min)</option>
+                            <option value="m15">M15 (15 min)</option>
+                            <option value="h1">H1 (1 hora)</option>
+                        </select>
+                    </div>
                     <div class="grid grid-cols-3 gap-2">
                         <!-- RSI V50 -->
                         <div id="rsi-card-1HZ50V" class="bg-[#121614] border border-cyber-border p-2.5 rounded-lg text-center transition-all duration-300">
@@ -372,6 +380,7 @@
         let activeSymbol = '1HZ75V'; // Activo por defecto
         let ws = null;
         let soundEnabled = true;
+        let rsiTimeframe = 'm5'; // Timeframe por defecto del RSI configurable ('m5', 'm15', 'h1')
 
         // Base de datos local
         const db = {
@@ -381,7 +390,6 @@
         };
 
         // SISTEMA DE POSICIONES PERSISTENTES EN MEMORIA (MÁQUINA DE ESTADOS)
-        // Estados posibles: 'IDLE', 'ACTIVE', 'INVALIDATED', 'CLOSED_TP', 'CLOSED_SL'
         const positions = {
             '1HZ50V': null,
             '1HZ75V': null,
@@ -646,12 +654,8 @@
                 }
             }
 
-            // Primero analizamos la estructura y el score
             analyzeSymbol(symbolId);
-
-            // Después gestionamos la posición en base al análisis actual y tick en vivo
             manageActivePosition(symbolId, price);
-
             updateRSIWidgets();
         }
 
@@ -767,7 +771,6 @@
                 scores: { scoreH1, scoreM15, scoreZone, scoreM5, impulseScore, totalScore }
             };
 
-            // Solo actualizamos el estado de la barra lateral si no hay una posición activa que tome prioridad
             const pos = positions[symbolId];
             if (!pos || pos.state === 'IDLE') {
                 updateSidebarWidget(symbolId, totalScore, h1Trend, nearSupport || nearResistance);
@@ -778,7 +781,7 @@
             }
         }
 
-        // NUEVO MOTOR DE GESTIÓN Y SEGUIMIENTO DE POSICIONES PERSISTENTES
+        // GESTIÓN Y SEGUIMIENTO DE POSICIONES PERSISTENTES
         function manageActivePosition(symbolId, price) {
             const data = db[symbolId];
             const analysis = data.analysis;
@@ -786,7 +789,6 @@
 
             let pos = positions[symbolId];
 
-            // 1. SI NO HAY POSICIÓN: Buscar gatillo de apertura si score >= 80 (Fase: SIN POSICIÓN)
             if (!pos || pos.state === 'IDLE') {
                 if (analysis.scores.totalScore >= 80) {
                     let direction = "";
@@ -827,13 +829,10 @@
                 return;
             }
 
-            // 2. SI LA POSICIÓN ESTÁ ACTIVA: Hacer seguimiento de salida estructural, trailing stop e hit de SL/TP
             if (pos.state === 'ACTIVE') {
-                // Actualizar máximos/mínimos alcanzados para cálculos de avance e impulso
                 if (price > pos.highestPrice) pos.highestPrice = price;
                 if (price < pos.lowestPrice) pos.lowestPrice = price;
 
-                // A) Verificar objetivos fijos de salida (SL / TP)
                 if (pos.direction === 'BUY') {
                     if (price >= pos.tp) {
                         pos.state = 'CLOSED_TP';
@@ -864,8 +863,6 @@
                     }
                 }
 
-                // B) Gestión Estructural Activa (Invalidación sin tocar SL/TP)
-                // Invalidation de tendencia macro H1 o M15 invertida
                 if (pos.direction === 'BUY' && (analysis.h1Trend === 'BEARISH' || analysis.m15Trend === 'BEARISH')) {
                     pos.state = 'INVALIDATED';
                     pos.invalidationReason = "Estructura Macro revertida a Bajista";
@@ -881,7 +878,6 @@
                     return;
                 }
 
-                // Invalidation por quiebre definitivo del soporte/resistencia origen (Cierre vela M5 debajo de soporte o encima de resistencia)
                 const lastM5Candle = data.m5[data.m5.length - 1];
                 if (lastM5Candle) {
                     if (pos.direction === 'BUY' && lastM5Candle.close < pos.originZone) {
@@ -900,13 +896,11 @@
                     }
                 }
 
-                // C) Trailing Stop Estructural Basado en Fractales Locales M5 (Garantizar ganancia)
                 const m5Fractals = identifyFractals(data.m5);
                 if (pos.direction === 'BUY') {
                     const m5Lows = m5Fractals.lows.map(f => f.price);
                     if (m5Lows.length > 0) {
                         const latestLow = m5Lows[m5Lows.length - 1];
-                        // Arrastrar SL si el nuevo fractal mínimo está por encima del SL actual y del precio de entrada
                         if (latestLow > pos.sl && latestLow > pos.entryPrice && latestLow < price) {
                             pos.sl = latestLow;
                             logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a mínimo M5: ${latestLow.toFixed(4)}`, 'success');
@@ -916,7 +910,6 @@
                     const m5Highs = m5Fractals.highs.map(f => f.price);
                     if (m5Highs.length > 0) {
                         const latestHigh = m5Highs[m5Highs.length - 1];
-                        // Arrastrar SL si el nuevo fractal máximo está por debajo del SL actual y del precio de entrada
                         if (latestHigh < pos.sl && latestHigh < pos.entryPrice && latestHigh > price) {
                             pos.sl = latestHigh;
                             logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a máximo M5: ${latestHigh.toFixed(4)}`, 'success');
@@ -924,7 +917,6 @@
                     }
                 }
 
-                // Actualizar UI del widget lateral para reflejar posición activa
                 const badge = document.getElementById(`score-badge-${symbolId}`);
                 if (badge) {
                     badge.textContent = pos.direction;
@@ -940,7 +932,6 @@
             }
         }
 
-        // Temporizador para limpiar la posición cerrada y retornar al estado de búsqueda tras 10 segundos
         function startClearTimer(symbolId) {
             setTimeout(() => {
                 positions[symbolId] = { state: 'IDLE' };
@@ -972,7 +963,7 @@
             return { highs, lows };
         }
 
-        // DETERMINACIÓN DE LA TENDENCIA POR PIVOTES DE ESTRUCTURA
+        // DETERMINACIÓN DE LA TENDENCIA MACRO (HH-HL / LH-LL)
         function determineTrend(highs, lows) {
             if (highs.length < 2 || lows.length < 2) return 'LATERAL';
             
@@ -986,41 +977,21 @@
             return 'LATERAL';
         }
 
-        // CÁLCULO MATEMÁTICO REAL DEL RSI (14)
-        function calculateRSI(candles, period = 14) {
-            if (candles.length < period + 1) return 50.0;
-            
-            let gains = 0;
-            let losses = 0;
-
-            for (let i = 1; i <= period; i++) {
-                const diff = candles[i].close - candles[i-1].close;
-                if (diff > 0) gains += diff;
-                else losses -= diff;
+        // ENRUTADOR DEL CAMBIO DE TIMEFRAME DEL RSI CONFIGURABLE
+        function changeRSITimeframe() {
+            const selectEl = document.getElementById('rsi-tf-select');
+            if (selectEl) {
+                rsiTimeframe = selectEl.value;
+                updateRSIWidgets();
+                logMessage(null, `Osciladores RSI reconfigurados a temporalidad: ${rsiTimeframe.toUpperCase()}`);
             }
-
-            let avgGain = gains / period;
-            let avgLoss = losses / period;
-
-            for (let i = period + 1; i < candles.length; i++) {
-                const diff = candles[i].close - candles[i-1].close;
-                const gain = diff > 0 ? diff : 0;
-                const loss = diff < 0 ? -diff : 0;
-
-                avgGain = (avgGain * (period - 1) + gain) / period;
-                avgLoss = (avgLoss * (period - 1) + loss) / period;
-            }
-
-            if (avgLoss === 0) return 100.0;
-            const rs = avgGain / avgLoss;
-            return 100.0 - (100.0 / (1.0 + rs));
         }
 
-        // GESTIÓN DE COLORES DE RSI EN VIVO
+        // GESTIÓN DE COLORES Y CÁLCULO DE RSI CONFIGURABLE EN VIVO
         function updateRSIWidgets() {
             ['1HZ50V', '1HZ75V', '1HZ100V'].forEach(id => {
-                const candles = db[id].m5;
-                if (candles.length < 15) return;
+                const candles = db[id][rsiTimeframe]; // Carga dinámicamente el timeframe seleccionado (m5, m15, h1)
+                if (!candles || candles.length < 15) return;
 
                 const rsiVal = calculateRSI(candles, 14);
                 const rsiValEl = document.getElementById(`rsi-val-${id}`);
@@ -1043,6 +1014,22 @@
             });
         }
 
+        // CÁLCULO MATEMÁTICO DE LA MEDIA MÓVIL (LINEA DE TENDENCIA ADHERIDA A VELAS)
+        function calculateEMA(candles, period = 9) {
+            const emaValues = [];
+            if (candles.length === 0) return emaValues;
+
+            const k = 2 / (period + 1);
+            let ema = candles[0].close;
+            emaValues.push({ time: candles[0].time, value: ema });
+
+            for (let i = 1; i < candles.length; i++) {
+                ema = candles[i].close * k + ema * (1 - k);
+                emaValues.push({ time: candles[i].time, value: ema });
+            }
+            return emaValues;
+        }
+
         // MOTOR DE RENDERIZADO GRÁFICO NATIVO (HTML5 CANVAS)
         function renderCanvasChart() {
             if (!canvas || !db[activeSymbol]) return;
@@ -1050,7 +1037,6 @@
             const candles = data.m5;
             const analysis = data.analysis;
 
-            // Limpieza del canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (candles.length === 0) {
@@ -1061,14 +1047,11 @@
                 return;
             }
 
-            // Ordenación de velas
             const sorted = [...candles].sort((a, b) => a.time - b.time);
 
-            // Escala de precios máximos y mínimos
             let minPrice = Infinity;
             let maxPrice = -Infinity;
 
-            // Incluir EMA 9 (Línea de Tendencia) en el cálculo de escala
             const emaPeriod = 9;
             const k = 2 / (emaPeriod + 1);
             let emaValues = [];
@@ -1088,7 +1071,6 @@
                 if (emaValues[idx] < minPrice) minPrice = emaValues[idx];
             });
 
-            // Incluir soportes y resistencias para evitar que queden fuera del gráfico
             let levels = [];
             if (analysis) {
                 levels = [...analysis.h1Support, ...analysis.h1Resistance];
@@ -1098,7 +1080,6 @@
                 if (lvl < minPrice) minPrice = lvl;
             });
 
-            // Márgenes del gráfico
             const range = maxPrice - minPrice;
             minPrice -= range * 0.08;
             maxPrice += range * 0.08;
@@ -1111,7 +1092,6 @@
             const chartWidth = canvas.width - paddingLeft - paddingRight;
             const chartHeight = canvas.height - paddingTop - paddingBottom;
 
-            // Funciones auxiliares de mapeo de coordenadas
             function getX(index) {
                 return paddingLeft + (index / (sorted.length - 1)) * chartWidth;
             }
@@ -1119,7 +1099,6 @@
                 return paddingTop + (1 - (price - minPrice) / (maxPrice - minPrice)) * chartHeight;
             }
 
-            // DIBUJAR LÍNEAS DE REJILLA HORIZONTALES
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 5; i++) {
@@ -1129,7 +1108,6 @@
                 ctx.lineTo(canvas.width - paddingRight, y);
                 ctx.stroke();
 
-                // Escala de precios (Eje Y derecho)
                 const priceVal = maxPrice - (i / 5) * (maxPrice - minPrice);
                 ctx.fillStyle = '#64748b';
                 ctx.font = '10px Space Grotesk';
@@ -1137,9 +1115,7 @@
                 ctx.fillText(priceVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 }), canvas.width - paddingRight + 8, y + 3.5);
             }
 
-            // DIBUJAR LÍNEAS DE ZONA H1 DISCONTINUAS (SOPORTE Y RESISTENCIA)
             if (analysis) {
-                // Soportes (Verdes)
                 analysis.h1Support.forEach((sup, idx) => {
                     const y = getY(sup);
                     ctx.strokeStyle = 'rgba(0, 230, 118, 0.45)';
@@ -1149,7 +1125,7 @@
                     ctx.moveTo(paddingLeft, y);
                     ctx.lineTo(canvas.width - paddingRight, y);
                     ctx.stroke();
-                    ctx.setLineDash([]); // Resetear discontinuidad
+                    ctx.setLineDash([]);
 
                     ctx.fillStyle = '#00e676';
                     ctx.font = '9px Orbitron';
@@ -1157,7 +1133,6 @@
                     ctx.fillText(`H1 SOPORTE ${idx + 1}`, canvas.width - paddingRight - 8, y - 4);
                 });
 
-                // Resistencias (Rojas)
                 analysis.h1Resistance.forEach((res, idx) => {
                     const y = getY(res);
                     ctx.strokeStyle = 'rgba(255, 51, 102, 0.45)';
@@ -1176,7 +1151,6 @@
                 });
             }
 
-            // DIBUJAR VELAS (VELAS CANDLESTICK)
             const candleWidth = Math.max(1.5, (chartWidth / sorted.length) * 0.55);
             sorted.forEach((c, idx) => {
                 const x = getX(idx);
@@ -1190,18 +1164,15 @@
                 ctx.fillStyle = isBullish ? '#00e676' : '#ff3366';
                 ctx.lineWidth = 1.2;
 
-                // Mecha de la vela
                 ctx.beginPath();
                 ctx.moveTo(x, yHigh);
                 ctx.lineTo(x, yLow);
                 ctx.stroke();
 
-                // Cuerpo de la vela
                 const bodyHeight = Math.max(1, Math.abs(yClose - yOpen));
                 ctx.fillRect(x - candleWidth / 2, Math.min(yOpen, yClose), candleWidth, bodyHeight);
             });
 
-            // DIBUJAR LÍNEA DE TENDENCIA ADHERIDA A LAS VELAS (CON BRILLO GLOW)
             if (emaValues.length > 0) {
                 let trendColor = '#64748b';
                 if (analysis) {
@@ -1212,7 +1183,7 @@
                 ctx.strokeStyle = trendColor;
                 ctx.lineWidth = 2.5;
                 ctx.shadowColor = trendColor;
-                ctx.shadowBlur = 8; // Efecto de iluminación de neón
+                ctx.shadowBlur = 8;
 
                 ctx.beginPath();
                 for (let i = 0; i < emaValues.length; i++) {
@@ -1223,7 +1194,6 @@
                 }
                 ctx.stroke();
 
-                // Desactivar el efecto de brillo para no ralentizar el resto del renderizado
                 ctx.shadowBlur = 0;
             }
         }
@@ -1272,7 +1242,7 @@
             }
         }
 
-        // COCKPIT PRINCIPAL DE DECISIÓN (ACTUALIZADO PARA SEGUIMIENTO DE LA POSICIÓN EN TIEMPO REAL)
+        // COCKPIT PRINCIPAL DE DECISIÓN DE LA POSICIÓN EN TIEMPO REAL
         function updateScoringUI(analysis, currentPrice) {
             const scoreCircle = document.getElementById('score-circle');
             const scoreText = document.getElementById('score-text');
@@ -1290,7 +1260,6 @@
 
             // A) INTERFAZ CUANDO HAY POSICIÓN ACTIVA
             if (pos && pos.state === 'ACTIVE') {
-                // Calcular progreso porcentual hacia TP estructural (0% a 100%)
                 let progress = 0;
                 if (pos.direction === 'BUY') {
                     const totalDist = pos.tp - pos.entryPrice;
@@ -1301,9 +1270,8 @@
                     const currentDist = pos.entryPrice - currentPrice;
                     progress = (currentDist / totalDist) * 100;
                 }
-                progress = Math.max(0, Math.min(100, progress)); // Forzar límites
+                progress = Math.max(0, Math.min(100, progress));
 
-                // Actualizar anillo de score para mostrar avance de la posición
                 scoreText.textContent = `${Math.round(progress)}%`;
                 const strokeOffset = 390 - (390 * progress) / 100;
                 scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
@@ -1326,7 +1294,6 @@
                     triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-red bg-[#160e10] relative overflow-hidden glow-red";
                 }
 
-                // Reflejar datos persistentes de la entrada en el cockpit inferior (incluyendo el Trailing SL en directo)
                 opPrice.textContent = pos.entryPrice.toFixed(4);
                 opSL.textContent = pos.sl.toFixed(4);
                 opTP.textContent = pos.tp.toFixed(4);
@@ -1389,7 +1356,6 @@
                 resetTriggerPanel();
             }
 
-            // Matrices de decisión H1/M15/M5 (Se mantienen operando al fondo independientemente del estado de la posición)
             const scores = analysis.scores;
             document.getElementById('score-h1').textContent = `${scores.scoreH1}/25 PTS`;
             document.getElementById('score-h1').className = scores.scoreH1 > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
