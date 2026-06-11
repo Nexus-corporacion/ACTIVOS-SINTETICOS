@@ -977,6 +977,49 @@
             return 'LATERAL';
         }
 
+        // CÁLCULO MATEMÁTICO REAL DEL RSI(14)
+        function calculateRSI(candles, period = 14) {
+            if (!candles || candles.length <= period) return 50.0;
+            const sorted = [...candles].sort((a, b) => a.time - b.time);
+            
+            let gains = [];
+            let losses = [];
+
+            for (let i = 1; i < sorted.length; i++) {
+                const diff = sorted[i].close - sorted[i - 1].close;
+                if (diff > 0) {
+                    gains.push(diff);
+                    losses.push(0);
+                } else {
+                    gains.push(0);
+                    losses.push(-diff);
+                }
+            }
+
+            let avgGain = 0;
+            let avgLoss = 0;
+
+            for (let i = 0; i < period; i++) {
+                avgGain += gains[i];
+                avgLoss += losses[i];
+            }
+
+            avgGain /= period;
+            avgLoss /= period;
+
+            for (let i = period; i < gains.length; i++) {
+                avgGain = (avgGain * (period - 1) + gains[i]) / period;
+                avgLoss = (avgLoss * (period - 1) + losses[i]) / period;
+            }
+
+            if (avgLoss === 0) {
+                return avgGain === 0 ? 50.0 : 100.0;
+            }
+
+            const rs = avgGain / avgLoss;
+            return 100 - (100 / (1 + rs));
+        }
+
         // ENRUTADOR DEL CAMBIO DE TIMEFRAME DEL RSI CONFIGURABLE
         function changeRSITimeframe() {
             const selectEl = document.getElementById('rsi-tf-select');
