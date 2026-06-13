@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-[#050a18]">
+<html lang="es" class="h-full bg-[#070908]">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOKEN SNIPER ENGINE v5.2 - NEXUS CORPORACION</title>
-    <!-- Tailwind CSS Fluid Grid -->
+    <title>DERIV SYNTHETIC SNIPER ENGINE v5.0</title>
+    <!-- Tailwind CSS para diseño fluido -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Iconos Profesionales de FontAwesome -->
+    <!-- Iconos profesionales FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts de Alta Fidelidad -->
+    <!-- Google Fonts con estilo futurista -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 
     <script>
@@ -20,20 +20,14 @@
                         mono: ['Orbitron', 'monospace'],
                     },
                     colors: {
-                        navy: {
-                            dark: '#050a18',
-                            card: '#0f1d36',
-                            light: '#1c355e',
-                            border: 'rgba(212, 175, 55, 0.15)'
-                        },
-                        gold: {
-                            corp: '#d4af37',
-                            bright: '#f4d068',
-                            dim: 'rgba(212, 175, 55, 0.08)'
-                        },
                         cyber: {
+                            bg: '#070908',
+                            card: 'rgba(18, 22, 20, 0.85)',
                             green: '#00e676',
-                            red: '#ff3c5f'
+                            red: '#ff3366',
+                            blue: '#00e5ff',
+                            gold: '#ffb300',
+                            border: 'rgba(255, 255, 255, 0.05)'
                         }
                     }
                 }
@@ -43,276 +37,326 @@
 
     <style>
         body {
-            background-color: #050a18;
-            background-image: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.04) 0%, transparent 45%),
-                              radial-gradient(circle at 90% 80%, rgba(28, 53, 94, 0.2) 0%, transparent 50%);
+            background-image: radial-gradient(circle at 10% 20%, rgba(0, 230, 118, 0.04) 0%, transparent 45%),
+                              radial-gradient(circle at 90% 80%, rgba(0, 229, 255, 0.03) 0%, transparent 50%);
             scrollbar-width: thin;
-            scrollbar-color: rgba(212, 175, 55, 0.2) #050a18;
-        }
-        .glow-gold {
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+            scrollbar-color: rgba(0, 230, 118, 0.2) rgba(7, 9, 8, 1);
         }
         .glow-green {
             box-shadow: 0 0 15px rgba(0, 230, 118, 0.25);
         }
         .glow-red {
-            box-shadow: 0 0 15px rgba(255, 60, 95, 0.25);
+            box-shadow: 0 0 15px rgba(255, 51, 102, 0.25);
         }
         .glass {
             backdrop-filter: blur(12px);
-            background: rgba(15, 29, 54, 0.75);
-            border: 1px solid rgba(212, 175, 55, 0.08);
+            background: rgba(18, 22, 20, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
-        .text-glow-gold {
-            text-shadow: 0 0 8px rgba(212, 175, 55, 0.6);
+        .text-glow {
+            text-shadow: 0 0 8px rgba(0, 230, 118, 0.6);
         }
+        /* Custom scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
-            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #050a18;
+            background: #070908;
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(212, 175, 55, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(212, 175, 55, 0.35);
+            background: rgba(0, 230, 118, 0.3);
         }
     </style>
 </head>
-<body class="text-slate-100 flex flex-col h-screen overflow-hidden">
+<body class="text-gray-100 flex flex-col h-screen overflow-hidden">
 
-    <!-- HEADER AZUL MARINO Y DORADO CORPORATIVO -->
-    <header class="glass border-b border-navy-border px-6 py-4 flex items-center justify-between shrink-0">
+    <!-- HEADER FUTURISTA -->
+    <header class="glass border-b border-cyber-border px-6 py-4 flex items-center justify-between shrink-0">
         <div class="flex items-center gap-4">
-            <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-gold-corp to-gold-bright flex items-center justify-center glow-gold">
-                <i class="fa-solid fa-crosshairs text-navy-dark text-xl font-bold"></i>
+            <div class="w-10 h-10 rounded-lg bg-gradient-to-tr from-cyber-green to-cyber-blue flex items-center justify-center glow-green">
+                <i class="fa-solid fa-crosshairs text-cyber-bg text-xl font-black"></i>
             </div>
             <div>
-                <h1 class="font-mono text-lg font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-300 to-gold-bright">
-                    TOKEN SNIPER ENGINE <span class="text-gold-corp">v5.2</span>
+                <h1 class="font-mono text-lg font-bold tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-300 to-cyber-green">
+                    DERIV SYNTHETIC SNIPER <span class="text-cyber-green">v5.0</span>
                 </h1>
-                <p class="text-[10px] text-slate-400 tracking-wider uppercase font-medium">Estructura e Indexador en Tiempo Real de Activos Criptográficos</p>
+                <p class="text-[10px] text-gray-500 tracking-wider uppercase font-medium">Escáner de Estructura de Mercado y Acción del Precio</p>
             </div>
         </div>
 
+        <!-- Telemetría Global de Conexión -->
         <div class="flex items-center gap-6 text-sm">
-            <div class="flex items-center gap-2 bg-[#050a18] px-3 py-1.5 rounded border border-navy-border shadow-inner">
-                <span class="w-2.5 h-2.5 rounded-full bg-cyber-green animate-pulse glow-green" id="ws-status-dot"></span>
-                <span class="font-mono text-xs text-slate-300" id="ws-status-text">INDEXER ONLINE</span>
+            <div class="flex items-center gap-2 bg-[#121614] px-3 py-1.5 rounded border border-cyber-border">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyber-green animate-pulse" id="ws-status-dot"></span>
+                <span class="font-mono text-xs text-gray-400" id="ws-status-text">CONECTANDO...</span>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="toggleSound()" class="px-3 py-1.5 rounded bg-[#050a18] border border-navy-border hover:bg-navy-light hover:text-gold-bright transition flex items-center gap-2 text-xs">
-                    <i id="sound-icon" class="fa-solid fa-volume-high text-gold-corp"></i>
-                    <span id="sound-text" class="text-slate-300 font-mono">SONIDO ON</span>
+                <button onclick="toggleSound()" class="px-3 py-1.5 rounded bg-[#121614] border border-cyber-border hover:bg-neutral-800 transition flex items-center gap-2 text-xs">
+                    <i id="sound-icon" class="fa-solid fa-volume-high text-cyber-green"></i>
+                    <span id="sound-text" class="text-gray-400 font-mono">SONIDO ON</span>
                 </button>
             </div>
             <div class="text-right hidden md:block">
-                <div class="font-mono text-xs text-slate-300 font-bold" id="live-clock">00:00:00 UTC</div>
-                <div class="text-[9px] text-gold-corp tracking-widest uppercase">Motor Cuántico Activo</div>
+                <div class="font-mono text-xs text-gray-400" id="live-clock">00:00:00 UTC</div>
+                <div class="text-[9px] text-gray-500 tracking-widest uppercase">Motor Cuántico Activo</div>
             </div>
         </div>
     </header>
 
-    <!-- CUADRO PRINCIPAL DE PANTALLA -->
-    <main class="flex-1 flex overflow-hidden p-4 gap-4 flex-col lg:flex-row">
+    <!-- ÁREA PRINCIPAL EN REJILLA -->
+    <main class="flex-1 flex overflow-hidden p-4 gap-4">
 
-        <!-- PANEL IZQUIERDO: SELECCIÓN DE ACTIVOS, RECUADRO VACÍO MANUAL (HASTA 20) & REGLAMENTO -->
-        <div class="w-full lg:w-1/4 lg:min-w-[320px] flex flex-col gap-4 overflow-y-auto shrink-0 pb-4 lg:pb-0">
+        <!-- PANEL IZQUIERDO: SELECCIÓN DE ACTIVOS & REGLAMENTO -->
+        <div class="w-1/4 min-w-[320px] flex flex-col gap-4 overflow-y-auto">
             
-            <!-- FORMULARIO MANUAL DE AGREGADO/ELIMINACIÓN DE TOKENS -->
-            <div class="glass p-4 rounded-xl border border-navy-border flex flex-col gap-3 relative overflow-hidden bg-navy-card/85">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-mono tracking-widest uppercase text-slate-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-plus text-gold-corp"></i> Indexar Token Manual
-                    </h2>
-                    <span class="font-mono text-[9px] text-gold-corp bg-gold-dim px-2 py-0.5 rounded border border-navy-border" id="token-counter">3/20 Activos</span>
-                </div>
+            <!-- TARJETAS DE MONITOREO DIRECTO (PALETAS) -->
+            <div class="flex flex-col gap-3 shrink-0">
+                <h2 class="text-xs font-mono tracking-widest uppercase text-gray-400 px-1">Instrumentos Monitoreados</h2>
                 
-                <div class="flex gap-2">
-                    <input type="text" id="manual-token-input" placeholder="Dirección de Contrato o Símbolo..." 
-                           class="flex-1 bg-[#050a18] border border-navy-border outline-none rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:border-gold-corp transition font-mono">
-                    <button onclick="addManualToken()" class="px-3 rounded-lg bg-gold-corp hover:bg-gold-bright text-navy-dark font-mono text-xs font-bold transition flex items-center gap-1 shrink-0">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Agregar</span>
-                    </button>
+                <!-- Volatility 50 (1s) -->
+                <div onclick="selectSymbol('1HZ50V')" id="card-1HZ50V" class="glass p-4 rounded-xl cursor-pointer border border-cyber-border hover:border-cyber-green/40 transition duration-300 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-cyber-green/5 to-transparent rounded-full blur-xl group-hover:from-cyber-green/10 transition"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs text-gray-400 font-semibold uppercase">Volatility 50 (1s)</span>
+                            <div class="font-mono text-lg font-bold tracking-tight text-white mt-0.5" id="price-1HZ50V">0.0000</div>
+                        </div>
+                        <span class="font-mono text-[10px] bg-[#121614] px-2 py-0.5 rounded border border-cyber-border text-gray-400" id="score-badge-1HZ50V">0 PTS</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-500">
+                        <span id="trend-1HZ50V" class="font-mono uppercase font-bold text-gray-400">ESPERANDO VELAS...</span>
+                        <span id="status-1HZ50V" class="px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-gray-400 text-[10px]">INACTIVO</span>
+                    </div>
                 </div>
-                <span id="manual-error-msg" class="text-[10px] text-cyber-red font-mono hidden"></span>
-            </div>
 
-            <!-- LISTA DE MONITOREADOS -->
-            <div class="flex flex-col gap-2.5 flex-grow overflow-y-auto pr-1">
-                <h2 class="text-xs font-mono tracking-widest uppercase text-slate-400 px-1">Instrumentos Monitoreados</h2>
-                <div id="monitored-tokens-list" class="space-y-2.5">
-                    <!-- Cards se llenan dinámicamente -->
+                <!-- Volatility 75 (1s) -->
+                <div onclick="selectSymbol('1HZ75V')" id="card-1HZ75V" class="glass p-4 rounded-xl cursor-pointer border border-cyber-border hover:border-cyber-green/40 transition duration-300 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-cyber-green/5 to-transparent rounded-full blur-xl group-hover:from-cyber-green/10 transition"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs text-gray-400 font-semibold uppercase">Volatility 75 (1s)</span>
+                            <div class="font-mono text-lg font-bold tracking-tight text-white mt-0.5" id="price-1HZ75V">0.0000</div>
+                        </div>
+                        <span class="font-mono text-[10px] bg-[#121614] px-2 py-0.5 rounded border border-cyber-border text-gray-400" id="score-badge-1HZ75V">0 PTS</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-500">
+                        <span id="trend-1HZ75V" class="font-mono uppercase font-bold text-gray-400">ESPERANDO VELAS...</span>
+                        <span id="status-1HZ75V" class="px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-gray-400 text-[10px]">INACTIVO</span>
+                    </div>
+                </div>
+
+                <!-- Volatility 100 (1s) -->
+                <div onclick="selectSymbol('1HZ100V')" id="card-1HZ100V" class="glass p-4 rounded-xl cursor-pointer border border-cyber-border hover:border-cyber-green/40 transition duration-300 relative overflow-hidden group">
+                    <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-cyber-green/5 to-transparent rounded-full blur-xl group-hover:from-cyber-green/10 transition"></div>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-xs text-gray-400 font-semibold uppercase">Volatility 100 (1s)</span>
+                            <div class="font-mono text-lg font-bold tracking-tight text-white mt-0.5" id="price-1HZ100V">0.0000</div>
+                        </div>
+                        <span class="font-mono text-[10px] bg-[#121614] px-2 py-0.5 rounded border border-cyber-border text-gray-400" id="score-badge-1HZ100V">0 PTS</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-500">
+                        <span id="trend-1HZ100V" class="font-mono uppercase font-bold text-gray-400">ESPERANDO VELAS...</span>
+                        <span id="status-1HZ100V" class="px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-gray-400 text-[10px]">INACTIVO</span>
+                    </div>
                 </div>
             </div>
 
             <!-- FILOSOFÍA DEL SISTEMA & RECUADROS RSI EN VIVO -->
-            <div class="glass p-4 rounded-xl border border-navy-border shrink-0 flex flex-col justify-between bg-navy-card/95 gap-4">
+            <div class="glass p-4 rounded-xl border border-cyber-border flex-1 flex flex-col justify-between overflow-hidden">
                 <div>
                     <div class="flex items-center gap-2 mb-3">
-                        <i class="fa-solid fa-shield-halved text-gold-corp text-xs"></i>
-                        <span class="text-[10px] font-mono tracking-widest text-slate-300 uppercase">Filosofía de Operación</span>
+                        <i class="fa-solid fa-brain text-cyber-green text-xs"></i>
+                        <span class="text-[10px] font-mono tracking-widest text-gray-400 uppercase">Filosofía de Operación</span>
                     </div>
-                    <ul class="text-[11px] text-slate-400 space-y-2 font-sans">
-                        <li class="flex gap-2"><span class="text-gold-corp font-mono font-bold">1.</span> <span>No operar extremos aislados sino Estructura de Tendencia.</span></li>
-                        <li class="flex gap-2"><span class="text-gold-corp font-mono font-bold">2.</span> <span>Zonas S/R Macro H1 definen límites; M5 confirma el Gatillo.</span></li>
-                        <li class="flex gap-2"><span class="text-gold-corp font-mono font-bold">3.</span> <span>Impulso direccional y RSI extremo garantizan el sniper.</span></li>
+                    <ul class="text-[11px] text-gray-400 space-y-2.5">
+                        <li class="flex gap-2"><span class="text-cyber-green font-bold">1.</span> <span>No perseguir el precio bajo ninguna circunstancia.</span></li>
+                        <li class="flex gap-2"><span class="text-cyber-green font-bold">2.</span> <span>No operar por indicadores aislados. Estructura es ley.</span></li>
+                        <li class="flex gap-2"><span class="text-cyber-green font-bold">3.</span> <span>El precio manda. La estructura confirma. El sniper ejecuta.</span></li>
+                        <li class="flex gap-2"><span class="text-cyber-green font-bold">4.</span> <span>La paciencia para esperar zonas clave no es inacción, es estrategia.</span></li>
                     </ul>
                 </div>
 
                 <!-- CONTENEDOR DE 3 CUADROS DE RSI EN VIVO CONFIGURABLE -->
-                <div class="pt-3 border-t border-navy-light">
+                <div class="mt-4 pt-3 border-t border-cyber-border">
                     <div class="flex items-center justify-between mb-2">
-                        <div class="text-[10px] font-mono tracking-wider text-slate-400 uppercase">RSI (14) en Vivo</div>
-                        <select id="rsi-tf-select" onchange="changeRSITimeframe()" class="bg-[#050a18] border border-navy-border text-[9px] font-mono text-gold-bright rounded px-1.5 py-0.5 outline-none focus:border-gold-corp transition cursor-pointer">
-                            <option value="m5" selected>M5 (Nativo)</option>
-                            <option value="m15">M15 (Confirmación)</option>
-                            <option value="h1">H1 (Macro)</option>
+                        <div class="text-[10px] font-mono tracking-wider text-gray-500 uppercase">RSI (14) en Vivo</div>
+                        <!-- Selector de Timeframe Configurable para el RSI -->
+                        <select id="rsi-tf-select" onchange="changeRSITimeframe()" class="bg-[#070908] border border-cyber-border text-[9px] font-mono text-cyber-green rounded px-1.5 py-0.5 outline-none focus:border-cyber-green/50 transition cursor-pointer">
+                            <option value="m5" selected>M5 (5 min)</option>
+                            <option value="m15">M15 (15 min)</option>
+                            <option value="h1">H1 (1 hora)</option>
                         </select>
                     </div>
-                    <div class="grid grid-cols-3 gap-2" id="rsi-widgets-container">
-                        <!-- RSI de los primeros 3 tokens se listan acá -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- RSI V50 -->
+                        <div id="rsi-card-1HZ50V" class="bg-[#121614] border border-cyber-border p-2.5 rounded-lg text-center transition-all duration-300">
+                            <span class="text-[9px] text-gray-500 font-mono block">RSI V50</span>
+                            <span id="rsi-val-1HZ50V" class="font-mono text-sm font-bold text-white">50.0</span>
+                        </div>
+                        <!-- RSI V75 -->
+                        <div id="rsi-card-1HZ75V" class="bg-[#121614] border border-cyber-border p-2.5 rounded-lg text-center transition-all duration-300">
+                            <span class="text-[9px] text-gray-500 font-mono block">RSI V75</span>
+                            <span id="rsi-val-1HZ75V" class="font-mono text-sm font-bold text-white">50.0</span>
+                        </div>
+                        <!-- RSI V100 -->
+                        <div id="rsi-card-1HZ100V" class="bg-[#121614] border border-cyber-border p-2.5 rounded-lg text-center transition-all duration-300">
+                            <span class="text-[9px] text-gray-500 font-mono block">RSI V100</span>
+                            <span id="rsi-val-1HZ100V" class="font-mono text-sm font-bold text-white">50.0</span>
+                        </div>
                     </div>
+                </div>
+
+                <div class="mt-3 pt-2 border-t border-cyber-border/50 flex items-center justify-between text-[9px] text-gray-500">
+                    <span>CRITERIO ESTRICTO: NO REPETIBLE</span>
+                    <span class="text-cyber-green"><i class="fa-solid fa-shield-halved"></i> SAFE MODE ON</span>
                 </div>
             </div>
         </div>
 
         <!-- PANEL CENTRAL: GRÁFICO PROFESIONAL EN TIEMPO REAL -->
-        <div class="flex-grow flex flex-col gap-4 overflow-hidden min-h-[450px]">
-            <div class="glass p-4 rounded-xl border border-navy-border flex-1 flex flex-col overflow-hidden relative">
+        <div class="flex-1 flex flex-col gap-4 overflow-hidden">
+            <div class="glass p-4 rounded-xl border border-cyber-border flex-1 flex flex-col overflow-hidden relative">
                 <!-- Header del Gráfico -->
-                <div class="flex justify-between items-center mb-4 shrink-0 flex-wrap gap-2">
+                <div class="flex justify-between items-center mb-4 shrink-0">
                     <div class="flex items-center gap-3">
-                        <span class="text-[11px] font-mono font-bold text-gold-bright bg-gold-dim px-2.5 py-1 rounded border border-gold-corp/30" id="chart-symbol-badge">V75</span>
-                        <div class="text-sm font-bold tracking-tight text-slate-100" id="chart-symbol-title">Seleccione un Token</div>
-                        <span class="text-[10px] text-slate-500 font-mono hidden sm:inline">DEXSCREENER ENGINE & 9 EMA</span>
+                        <span class="text-xs font-mono font-bold text-cyber-green bg-cyber-green/10 px-2.5 py-1 rounded border border-cyber-green/20" id="chart-symbol-badge">V75 (1S)</span>
+                        <div class="text-sm font-bold tracking-tight" id="chart-symbol-title">Volatility 75 (1s) Index</div>
+                        <span class="text-[11px] text-gray-500 font-mono">M5 Engine & Native Candle Engine</span>
                     </div>
-                    <div class="flex gap-1.5 bg-[#050a18] p-1 rounded border border-navy-border text-[10px] font-mono">
-                        <span class="px-2 py-0.5 bg-gold-corp text-navy-dark rounded font-bold">NATIVO M5</span>
-                        <span class="px-2 py-0.5 text-slate-400 hidden sm:inline">S/R SEGREGADO ACTIVADO</span>
+                    <div class="flex gap-1.5 bg-[#121614] p-1 rounded border border-cyber-border text-[10px] font-mono">
+                        <span class="px-2 py-0.5 bg-cyber-green/10 text-cyber-green rounded border border-cyber-green/25 font-bold">NATIVO M5</span>
+                        <span class="px-2 py-0.5 text-gray-500">S/R H1 ACTIVADO</span>
                     </div>
                 </div>
 
-                <!-- Contenedor del Gráfico con Canvas Integrado -->
-                <div class="flex-1 rounded-lg overflow-hidden border border-navy-border/50 relative bg-[#050a18] min-h-[280px]" id="tv-chart-container">
-                    <canvas id="native-sniper-canvas" class="w-full h-full block bg-[#050a18]"></canvas>
+                <!-- Contenedor del Gráfico con Altura Garantizada y Canvas Integrado -->
+                <div class="flex-1 rounded-lg overflow-hidden border border-cyber-border relative bg-[#070908] min-h-[380px] h-[420px] flex items-center justify-center" id="tv-chart-container">
+                    <canvas id="native-sniper-canvas" class="w-full h-full block bg-[#070908]"></canvas>
+                    
+                    <!-- Overlay de Carga -->
+                    <div id="chart-loader" class="absolute inset-0 bg-[#070908]/95 z-10 flex flex-col items-center justify-center gap-3">
+                        <i class="fa-solid fa-spinner animate-spin text-2xl text-cyber-green"></i>
+                        <span class="text-xs text-gray-400 font-mono tracking-wider">ESTABLECIENDO ENLACE SINTÉTICO EN TIEMPO REAL...</span>
+                    </div>
                 </div>
             </div>
 
             <!-- PANEL DE EVENTOS / BITÁCORA SNIPER -->
-            <div class="h-1/4 min-h-[140px] max-h-[180px] glass p-4 rounded-xl border border-navy-border flex flex-col overflow-hidden shrink-0">
+            <div class="h-1/4 min-h-[140px] max-h-[180px] glass p-4 rounded-xl border border-cyber-border flex flex-col overflow-hidden shrink-0">
                 <div class="flex items-center justify-between mb-2 shrink-0">
-                    <span class="text-xs font-mono tracking-widest uppercase text-slate-300 flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-gold-bright animate-ping"></span>
+                    <span class="text-xs font-mono tracking-widest uppercase text-gray-400 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyber-green animate-ping"></span>
                         Bitácora del Sistema (Historial de Alertas)
                     </span>
-                    <button onclick="clearLogs()" class="text-[10px] text-slate-500 hover:text-gold-bright transition font-mono border border-navy-border px-2 py-0.5 rounded bg-navy-dark">LIMPIAR LOGS</button>
+                    <button onclick="clearLogs()" class="text-[10px] text-gray-500 hover:text-cyber-green transition font-mono">LIMPIAR LOGS</button>
                 </div>
-                <div class="flex-1 overflow-y-auto space-y-1.5 font-mono text-xs text-slate-400 pr-1" id="system-logs">
-                    <!-- Logs entran en vivo -->
+                <div class="flex-1 overflow-y-auto space-y-1.5 font-mono text-xs text-gray-400 pr-1" id="system-logs">
+                    <div class="text-gray-500">[00:00:00] Inicializando motores nativos de análisis estructural...</div>
+                    <div class="text-gray-500">[00:00:01] Conexión establecida con la red descentralizada de Deriv WS API.</div>
                 </div>
             </div>
         </div>
 
         <!-- PANEL DERECHO: CONSOLA DE GATILLO & SCORE -->
-        <div class="w-full lg:w-1/4 lg:min-w-[300px] flex flex-col gap-4 overflow-y-auto shrink-0">
+        <div class="w-1/4 min-w-[300px] flex flex-col gap-4 overflow-y-auto">
             
             <!-- PANEL DE PUNTUACIÓN -->
-            <div class="glass p-5 rounded-xl border border-navy-border text-center relative overflow-hidden bg-navy-card/90 flex flex-col items-center shrink-0">
-                <div class="absolute inset-0 bg-gradient-to-b from-gold-dim to-transparent pointer-events-none"></div>
-                <span class="text-xs font-mono tracking-widest uppercase text-slate-300">Puntaje de Configuración</span>
+            <div class="glass p-5 rounded-xl border border-cyber-border text-center relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-b from-cyber-green/5 to-transparent pointer-events-none"></div>
+                <span class="text-xs font-mono tracking-widest uppercase text-gray-400">Puntaje de Configuración</span>
                 
                 <!-- Círculo de Score -->
                 <div class="relative w-36 h-36 mx-auto my-4 flex items-center justify-center">
                     <svg class="w-full h-full transform -rotate-90">
                         <circle cx="72" cy="72" r="62" stroke="rgba(255,255,255,0.02)" stroke-width="8" fill="transparent"></circle>
-                        <circle id="score-circle" cx="72" cy="72" r="62" stroke="#d4af37" stroke-width="10" fill="transparent"
-                                stroke-dasharray="390" stroke-dashoffset="390" class="transition-all duration-1000 ease-out glow-gold"></circle>
+                        <circle id="score-circle" cx="72" cy="72" r="62" stroke="#00e676" stroke-width="10" fill="transparent"
+                                stroke-dasharray="390" stroke-dashoffset="390" class="transition-all duration-1000 ease-out glow-green"></circle>
                     </svg>
                     <div class="absolute text-center">
-                        <span class="font-mono text-3xl font-black tracking-tighter text-slate-100" id="score-text">0</span>
-                        <span class="font-mono text-[10px] text-slate-500 block -mt-1">PTS</span>
+                        <span class="font-mono text-3xl font-black tracking-tighter" id="score-text">0</span>
+                        <span class="font-mono text-xs text-gray-500 block -mt-1">PTS</span>
                     </div>
                 </div>
 
-                <div class="px-4 py-1.5 rounded bg-navy-dark border border-navy-border inline-block text-[11px] font-mono font-bold tracking-widest text-gold-corp" id="quality-badge">
+                <div class="px-4 py-1.5 rounded bg-[#121614] border border-cyber-border inline-block text-[11px] font-mono font-bold tracking-widest text-cyber-green" id="quality-badge">
                     ESPERANDO SEÑAL
                 </div>
             </div>
 
             <!-- CHECKLIST DE ANÁLISIS MULTI-TIME-FRAME -->
-            <div class="glass p-5 rounded-xl border border-navy-border flex-1 flex flex-col justify-between bg-navy-card/95 gap-4">
+            <div class="glass p-5 rounded-xl border border-cyber-border flex-1 flex flex-col justify-between">
                 <div>
-                    <h3 class="text-xs font-mono tracking-widest uppercase text-slate-300 mb-4 flex items-center gap-2 border-b border-navy-border pb-2">
-                        <i class="fa-solid fa-list-check text-gold-corp"></i>
-                        Matrices de Decisión (Filtro Estricto)
+                    <h3 class="text-xs font-mono tracking-widest uppercase text-gray-400 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-cyber-green"></i>
+                        Matrices de Decisión
                     </h3>
-                    <div class="space-y-3.5 text-xs">
+                    <div class="space-y-4 text-xs">
                         <!-- H1 Structure -->
-                        <div class="flex items-center justify-between border-b border-navy-light pb-2">
+                        <div class="flex items-center justify-between border-b border-cyber-border pb-2">
                             <div class="flex flex-col">
-                                <span class="font-semibold text-slate-200">Estructura H1 Macro</span>
-                                <span class="text-[10px] text-slate-500 font-mono" id="h1-details">BOS/CHoCH no definido</span>
+                                <span class="font-semibold text-gray-200">Estructura H1</span>
+                                <span class="text-[10px] text-gray-500 font-mono" id="h1-details">BOS/CHoCH no definido</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600" id="score-h1">0/25 PTS</span>
+                            <span class="font-mono font-bold" id="score-h1">0/25 PTS</span>
                         </div>
                         <!-- M15 Confirmation -->
-                        <div class="flex items-center justify-between border-b border-navy-light pb-2">
+                        <div class="flex items-center justify-between border-b border-cyber-border pb-2">
                             <div class="flex flex-col">
-                                <span class="font-semibold text-slate-200">Alineación M15</span>
-                                <span class="text-[10px] text-slate-500 font-mono" id="m15-details">Esperando sincronía</span>
+                                <span class="font-semibold text-gray-200">Alineación M15</span>
+                                <span class="text-[10px] text-gray-500 font-mono" id="m15-details">Esperando sincronía</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600" id="score-m15">0/20 PTS</span>
+                            <span class="font-mono font-bold" id="score-m15">0/20 PTS</span>
                         </div>
                         <!-- Key Zone -->
-                        <div class="flex items-center justify-between border-b border-navy-light pb-2">
+                        <div class="flex items-center justify-between border-b border-cyber-border pb-2">
                             <div class="flex flex-col">
-                                <span class="font-semibold text-slate-200">Zona H1 Relevante</span>
-                                <span class="text-[10px] text-slate-500 font-mono" id="zone-details">Fuera de Soporte/Resistencia</span>
+                                <span class="font-semibold text-gray-200">Zona Relevante</span>
+                                <span class="text-[10px] text-gray-500 font-mono" id="zone-details">Fuera de Soporte/Resistencia</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600" id="score-zone">0/25 PTS</span>
+                            <span class="font-mono font-bold" id="score-zone">0/25 PTS</span>
                         </div>
                         <!-- M5 CHoCH/BOS -->
-                        <div class="flex items-center justify-between border-b border-navy-light pb-2">
+                        <div class="flex items-center justify-between border-b border-cyber-border pb-2">
                             <div class="flex flex-col">
-                                <span class="font-semibold text-slate-200">Gatillo M5</span>
-                                <span class="text-[10px] text-slate-500 font-mono" id="m5-details">Esperando Reversión/Wick</span>
+                                <span class="font-semibold text-gray-200">Gatillo M5</span>
+                                <span class="text-[10px] text-gray-500 font-mono" id="m5-details">Esperando Reversión/Wick</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600" id="score-m5">0/20 PTS</span>
+                            <span class="font-mono font-bold" id="score-m5">0/20 PTS</span>
                         </div>
                         <!-- Impulse -->
                         <div class="flex items-center justify-between">
                             <div class="flex flex-col">
-                                <span class="font-semibold text-slate-200">Impulso de Onda M5</span>
-                                <span class="text-[10px] text-slate-500 font-mono" id="impulse-details">Momentum neutral</span>
+                                <span class="font-semibold text-gray-200">Impulso</span>
+                                <span class="text-[10px] text-gray-500 font-mono" id="impulse-details">Momentum neutral</span>
                             </div>
-                            <span class="font-mono font-bold text-slate-600" id="score-impulse">0/10 PTS</span>
+                            <span class="font-mono font-bold" id="score-impulse">0/10 PTS</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- TARGET BOX (OPERACIÓN SNIPER DETECTADA) -->
-                <div class="mt-4 p-4 rounded-xl border border-dashed border-navy-border bg-navy-dark/60 relative overflow-hidden" id="trigger-panel">
-                    <div class="absolute inset-0 bg-gradient-to-tr from-gold-corp/5 via-transparent to-transparent"></div>
-                    <div class="text-[9px] font-mono tracking-wider text-slate-400 uppercase mb-2">ORDEN SNIPER DETECTADA</div>
+                <div class="mt-4 p-4 rounded-xl border border-dashed border-cyber-border bg-[#0e1210] relative overflow-hidden" id="trigger-panel">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-cyber-green/5 via-transparent to-transparent"></div>
+                    <div class="text-[9px] font-mono tracking-wider text-gray-500 uppercase mb-2">ORDEN SNIPER DETECTADA</div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-sm font-mono font-bold text-slate-500" id="op-action">ESPERANDO SEÑAL...</span>
+                        <span class="text-lg font-mono font-bold text-gray-400" id="op-action">ESPERANDO...</span>
                         <div class="text-right">
-                            <span class="text-[10px] text-slate-500 block leading-none font-mono">ENTRY ZONE</span>
-                            <span class="font-mono text-xs text-slate-400" id="op-price">0.0000</span>
+                            <span class="text-[10px] text-gray-500 block leading-none font-mono">ENTRY ZONE</span>
+                            <span class="font-mono text-sm text-white font-bold" id="op-price">0.0000</span>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 text-[10px] font-mono">
-                        <div class="bg-navy-dark p-1.5 rounded border border-navy-border">
-                            <span class="text-slate-500 text-[9px] block">STOP LOSS</span>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] font-mono">
+                        <div class="bg-[#121614] p-1.5 rounded border border-cyber-border">
+                            <span class="text-gray-500 text-[9px] block">STOP LOSS</span>
                             <span class="text-cyber-red font-semibold" id="op-sl">0.0000</span>
                         </div>
-                        <div class="bg-navy-dark p-1.5 rounded border border-navy-border">
-                            <span class="text-slate-500 text-[9px] block">TAKE PROFIT</span>
+                        <div class="bg-[#121614] p-1.5 rounded border border-cyber-border">
+                            <span class="text-gray-500 text-[9px] block">TAKE PROFIT</span>
                             <span class="text-cyber-green font-semibold" id="op-tp">0.0000</span>
                         </div>
                     </div>
@@ -321,30 +365,44 @@
         </div>
     </main>
 
-    <!-- LOGICAL ENGINE DE ALTO RENDIMIENTO -->
+    <!-- MOTOR LOGIC DE ANÁLISIS EN JAVASCRIPT -->
     <script>
-        // Registros Iniciales de Tokens Base Pre-indexados
-        let tokens = [
-            { id: 'sol-token', symbol: 'SOL', name: 'Solana', address: 'So11111111111111111111111111111111111111112', price: 153.42, change24h: 3.45, custom: false },
-            { id: 'wif-token', symbol: 'WIF', name: 'dogwifhat', address: 'EKpQGSJtjMFqKZ9m2E7ekMainMc2tsy676A9A87SuSUX', price:  2.34, change24h: -1.25, custom: false },
-            { id: 'bonk-token', symbol: 'BONK', name: 'Bonk', address: 'DezXAZ8z7PnrnRJjz3wX4mGCmzNgR6937JoxCwt6A85', price: 0.00002134, change24h: 12.50, custom: false }
-        ];
+        // CONFIGURACIONES BÁSICAS
+        const APP_ID = 1089;
+        const WS_URL = `wss://ws.derivws.com/websockets/v3?app_id=${APP_ID}`;
+        
+        const symbols = {
+            '1HZ50V': { name: 'Volatility 50 (1s) Index', shortName: 'V50 (1S)' },
+            '1HZ75V': { name: 'Volatility 75 (1s) Index', shortName: 'V75 (1S)' },
+            '1HZ100V': { name: 'Volatility 100 (1s) Index', shortName: 'V100 (1S)' }
+        };
 
-        let activeAddress = 'So11111111111111111111111111111111111111112';
+        let activeSymbol = '1HZ75V'; // Activo por defecto
+        let ws = null;
         let soundEnabled = true;
-        let rsiTimeframe = 'm5'; // m5, m15, h1
+        let rsiTimeframe = 'm5'; // Timeframe por defecto del RSI configurable ('m5', 'm15', 'h1')
 
-        // Memoria de historiales de velas de los activos indexados
-        const db = {};
-        const positions = {};
+        // Base de datos local
+        const db = {
+            '1HZ50V': { h1: [], m15: [], m5: [], price: 0, analysis: null },
+            '1HZ75V': { h1: [], m15: [], m5: [], price: 0, analysis: null },
+            '1HZ100V': { h1: [], m15: [], m5: [], price: 0, analysis: null }
+        };
 
-        // Iniciar un reloj UTC que represente la sincronía del mercado
+        // SISTEMA DE POSICIONES PERSISTENTES EN MEMORIA (MÁQUINA DE ESTADOS)
+        const positions = {
+            '1HZ50V': null,
+            '1HZ75V': null,
+            '1HZ100V': null
+        };
+
+        // RELOJ GLOBAL DE TIEMPO
         setInterval(() => {
             const now = new Date();
             document.getElementById('live-clock').textContent = now.toISOString().replace('T', ' ').substring(0, 19) + ' UTC';
         }, 1000);
 
-        // Configuración de Canvas Multidireccional y Redimensionado
+        // CONFIGURACIÓN DE CANVAS Y REDIMENSIONADO INTEGRADO
         const canvas = document.getElementById('native-sniper-canvas');
         const ctx = canvas.getContext('2d');
 
@@ -352,30 +410,28 @@
             const rect = canvas.parentElement.getBoundingClientRect();
             canvas.width = rect.width;
             canvas.height = rect.height;
-            renderChart();
+            renderCanvasChart();
         }
         window.addEventListener('resize', resizeCanvas);
 
-        // Inicialización del oscilador acústico para alertas discretas (Snip Chiarps)
-        function playSignalChirp(freq1 = 1200, freq2 = 2400) {
+        // REPRODUCTOR SINTETIZADO DE AUDIO FUTURISTA
+        function playSignalChirp() {
             if (!soundEnabled) return;
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (!audioCtx) return;
-
                 const osc1 = audioCtx.createOscillator();
                 const osc2 = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
 
                 osc1.type = 'sine';
-                osc1.frequency.setValueAtTime(freq1, audioCtx.currentTime);
-                osc1.frequency.exponentialRampToValueAtTime(freq2, audioCtx.currentTime + 0.15);
+                osc1.frequency.setValueAtTime(1200, audioCtx.currentTime);
+                osc1.frequency.exponentialRampToValueAtTime(2400, audioCtx.currentTime + 0.15);
 
                 osc2.type = 'square';
-                osc2.frequency.setValueAtTime(freq1 / 2, audioCtx.currentTime);
-                osc2.frequency.exponentialRampToValueAtTime(freq1, audioCtx.currentTime + 0.15);
+                osc2.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc2.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.15);
 
-                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.4);
 
                 osc1.connect(gain);
@@ -387,7 +443,7 @@
                 osc1.stop(audioCtx.currentTime + 0.45);
                 osc2.stop(audioCtx.currentTime + 0.45);
             } catch (err) {
-                console.warn('AudioContext bloqueado o inactivo.', err);
+                console.warn('AudioContext bloqueado o no soportado.', err);
             }
         }
 
@@ -396,28 +452,28 @@
             const btn = document.getElementById('sound-icon');
             const txt = document.getElementById('sound-text');
             if (soundEnabled) {
-                btn.className = 'fa-solid fa-volume-high text-gold-corp';
+                btn.className = 'fa-solid fa-volume-high text-cyber-green';
                 txt.textContent = 'SONIDO ON';
             } else {
-                btn.className = 'fa-solid fa-volume-xmark text-slate-500';
-                txt.textContent = 'MUTE';
+                btn.className = 'fa-solid fa-volume-xmark text-gray-500';
+                txt.textContent = 'SONIDO OFF';
             }
         }
 
-        // Historial de Logs
+        // ESCRITURA EN BITÁCORA
         function logMessage(symbol, text, level = 'info') {
             const logsContainer = document.getElementById('system-logs');
             const timestamp = new Date().toISOString().substring(11, 19);
-            const prefix = symbol ? `[${symbol}]` : '[SYSTEM]';
+            const prefix = symbol ? `[${symbols[symbol].shortName}]` : '[SYSTEM]';
             
-            let color = 'text-slate-400';
-            if (level === 'success') color = 'text-cyber-green font-bold text-glow-green';
-            if (level === 'warn') color = 'text-gold-bright font-semibold';
+            let color = 'text-gray-400';
+            if (level === 'success') color = 'text-cyber-green font-bold text-glow';
+            if (level === 'warn') color = 'text-cyber-gold font-bold';
             if (level === 'alert') color = 'text-cyber-red font-bold animate-pulse';
 
             const logDiv = document.createElement('div');
             logDiv.className = `${color} transition-all duration-300`;
-            logDiv.innerHTML = `<span class="text-slate-600">[${timestamp}]</span> <span class="text-gold-corp/80 font-mono">${prefix}</span> ${text}`;
+            logDiv.innerHTML = `[${timestamp}] ${prefix} ${text}`;
             
             logsContainer.appendChild(logDiv);
             logsContainer.scrollTop = logsContainer.scrollHeight;
@@ -428,140 +484,467 @@
         }
 
         function clearLogs() {
-            document.getElementById('system-logs').innerHTML = `<div class="text-slate-500">[${new Date().toISOString().substring(11, 19)}] Historial de bitácora limpiado.</div>`;
+            document.getElementById('system-logs').innerHTML = `<div class="text-gray-500">[${new Date().toISOString().substring(11, 19)}] Historial limpiado.</div>`;
         }
 
-        // Simulación de velas y generación inicial de datos de caminata aleatoria
-        function generateHistoricalCandles(basePrice, count = 100, scaleFactor = 300) {
-            const candles = [];
-            let currentClose = basePrice;
-            const nowEpoch = Math.floor(Date.now() / 1000);
+        // CONEXIÓN WEBSOCKET Y CARGA DE HISTORIALES
+        let responseHandlers = {};
+        let reqCount = 0;
 
-            for (let i = 0; i < count; i++) {
-                const time = nowEpoch - i * scaleFactor;
-                const changePct = (Math.random() - 0.485) * 0.015; // Ligeramente alcista
-                const open = currentClose * (1 + changePct);
-                const high = Math.max(open, currentClose) * (1 + Math.random() * 0.005);
-                const low = Math.min(open, currentClose) * (1 - Math.random() * 0.005);
+        function connectWS() {
+            ws = new WebSocket(WS_URL);
 
-                candles.unshift({ time, open, high, low, close: currentClose });
-                currentClose = open;
-            }
-            return candles;
+            ws.onopen = () => {
+                document.getElementById('ws-status-dot').className = "w-2.5 h-2.5 rounded-full bg-cyber-green glow-green";
+                document.getElementById('ws-status-text').textContent = "ONLINE (SECURE)";
+                logMessage(null, "Conexión encriptada establecida con el servidor de Deriv.");
+                loadAllMarketData();
+            };
+
+            ws.onmessage = (msg) => {
+                const data = JSON.parse(msg.data);
+                const reqId = data.req_id;
+
+                if (responseHandlers[reqId]) {
+                    responseHandlers[reqId](data);
+                    delete responseHandlers[reqId];
+                }
+
+                if (data.msg_type === 'tick') {
+                    const symbolId = data.tick.symbol;
+                    const livePrice = parseFloat(data.tick.quote);
+                    handleLiveTick(symbolId, livePrice);
+                }
+            };
+
+            ws.onclose = () => {
+                document.getElementById('ws-status-dot').className = "w-2.5 h-2.5 rounded-full bg-cyber-red animate-pulse";
+                document.getElementById('ws-status-text').textContent = "DESCONECTADO";
+                logMessage(null, "Conexión perdida. Reintentando en 5 segundos...", "warn");
+                setTimeout(connectWS, 5000);
+            };
         }
 
-        // Inicializar un token en la base de datos local
-        function initTokenDb(address, price) {
-            if (!db[address]) {
-                db[address] = {
-                    price: price,
-                    prevPrice: price,
-                    m5: generateHistoricalCandles(price, 60, 300),
-                    m15: generateHistoricalCandles(price, 60, 900),
-                    h1: generateHistoricalCandles(price, 60, 3600),
-                    analysis: null
-                };
-                positions[address] = { state: 'IDLE' };
+        function sendWSRequest(payload, callback) {
+            reqCount++;
+            payload.req_id = reqCount;
+            if (callback) {
+                responseHandlers[reqCount] = callback;
+            }
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify(payload));
             }
         }
 
-        // Indexar o agregar un nuevo token manualmente
-        function addManualToken() {
-            const inputEl = document.getElementById('manual-token-input');
-            const errorEl = document.getElementById('manual-error-msg');
-            errorEl.classList.add('hidden');
+        async function loadAllMarketData() {
+            const keys = Object.keys(symbols);
+            for (let symbolId of keys) {
+                logMessage(symbolId, `Buscando histórico estructural...`);
+                try {
+                    await fetchCandles(symbolId, 3600, 100, (candles) => { db[symbolId].h1 = candles; });
+                    await fetchCandles(symbolId, 900, 100, (candles) => { db[symbolId].m15 = candles; });
+                    await fetchCandles(symbolId, 300, 100, (candles) => {
+                        db[symbolId].m5 = candles;
+                        if (candles.length > 0) {
+                            db[symbolId].price = candles[candles.length - 1].close;
+                        }
+                    });
 
-            const query = inputEl.value.trim();
-            if (!query) return;
-
-            if (tokens.length >= 20) {
-                errorEl.textContent = "Límite de 20 tokens alcanzado. Elimina alguno antes de agregar nuevos.";
-                errorEl.classList.remove('hidden');
-                return;
+                    sendWSRequest({ ticks: symbolId });
+                    logMessage(symbolId, `Estructuras H1/M15/M5 cargadas de forma exitosa.`, 'success');
+                    analyzeSymbol(symbolId);
+                } catch (err) {
+                    logMessage(symbolId, `Error en la obtención estructural: ${err.message}`, 'warn');
+                }
             }
 
-            // Evitar duplicados
-            const exists = tokens.some(t => t.address.toLowerCase() === query.toLowerCase() || t.symbol.toLowerCase() === query.toLowerCase());
-            if (exists) {
-                errorEl.textContent = "El token ya se encuentra indexado.";
-                errorEl.classList.remove('hidden');
-                return;
+            document.getElementById('chart-loader').style.display = 'none';
+            resizeCanvas();
+            updateRSIWidgets();
+        }
+
+        function fetchCandles(symbolId, granularity, count, callback) {
+            return new Promise((resolve, reject) => {
+                sendWSRequest({
+                    ticks_history: symbolId,
+                    adjust_start_time: 1,
+                    count: count,
+                    end: "latest",
+                    granularity: granularity,
+                    style: "candles"
+                }, (response) => {
+                    if (response.error) {
+                        reject(new Error(response.error.message));
+                    } else if (response.candles) {
+                        const formatted = response.candles.map(c => ({
+                            time: parseInt(c.epoch),
+                            open: parseFloat(c.open),
+                            high: parseFloat(c.high),
+                            low: parseFloat(c.low),
+                            close: parseFloat(c.close)
+                        }));
+                        callback(formatted);
+                        resolve(formatted);
+                    } else {
+                        reject(new Error("Formato de respuesta desconocido"));
+                    }
+                });
+            });
+        }
+
+        // CAMBIO DE SELECCIÓN DE ACTIVOS
+        function selectSymbol(symbolId) {
+            activeSymbol = symbolId;
+            
+            Object.keys(symbols).forEach(id => {
+                const card = document.getElementById(`card-${id}`);
+                if (id === symbolId) {
+                    card.className = "glass p-4 rounded-xl cursor-pointer border border-cyber-green shadow-xl relative overflow-hidden group glow-green";
+                } else {
+                    card.className = "glass p-4 rounded-xl cursor-pointer border border-cyber-border hover:border-cyber-green/40 transition duration-300 relative overflow-hidden group";
+                }
+            });
+
+            document.getElementById('chart-symbol-badge').textContent = symbols[symbolId].shortName;
+            document.getElementById('chart-symbol-title').textContent = symbols[symbolId].name;
+
+            renderCanvasChart();
+            updateScoringUI(db[symbolId].analysis, db[symbolId].price);
+        }
+
+        // GESTIÓN DE TICKS EN TIEMPO REAL
+        function handleLiveTick(symbolId, price) {
+            db[symbolId].price = price;
+            
+            const priceEl = document.getElementById(`price-${symbolId}`);
+            if (priceEl) {
+                const prevPrice = parseFloat(priceEl.textContent);
+                priceEl.textContent = price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+                
+                if (price > prevPrice) {
+                    priceEl.className = "font-mono text-lg font-bold tracking-tight text-cyber-green mt-0.5 transition-colors duration-200";
+                } else {
+                    priceEl.className = "font-mono text-lg font-bold tracking-tight text-cyber-red mt-0.5 transition-colors duration-200";
+                }
             }
 
-            logMessage('SYSTEM', `Buscando e indexando "${query}" en el pool de liquidez...`, 'info');
+            const m5List = db[symbolId].m5;
+            if (m5List.length > 0) {
+                const lastCandle = m5List[m5List.length - 1];
+                const nowEpoch = Math.floor(Date.now() / 1000);
+                
+                if (nowEpoch - lastCandle.time >= 300) {
+                    const newCandle = {
+                        time: lastCandle.time + 300,
+                        open: price,
+                        high: price,
+                        low: price,
+                        close: price
+                    };
+                    m5List.push(newCandle);
+                    m5List.shift();
+                } else {
+                    lastCandle.close = price;
+                    if (price > lastCandle.high) lastCandle.high = price;
+                    if (price < lastCandle.low) lastCandle.low = price;
+                }
 
-            // Hacemos una llamada segura a Dexscreener API
-            let url = query.length > 25 
-                ? `https://api.dexscreener.com/latest/dex/tokens/${query}`
-                : `https://api.dexscreener.com/latest/dex/search?q=${query}`;
+                if (symbolId === activeSymbol) {
+                    renderCanvasChart();
+                }
+            }
 
-            fetch(url)
-                .then(res => res.json())
-                .then(data => {
-                    const pairs = data.pairs || data.pair;
-                    if (!pairs || pairs.length === 0) {
-                        throw new Error("No se encontró liquidez activa para este token.");
+            analyzeSymbol(symbolId);
+            manageActivePosition(symbolId, price);
+            updateRSIWidgets();
+        }
+
+        // ALGORITMO INTEGRAL DE ACCIÓN DEL PRECIO Y ANÁLISIS ESTRUCTURAL
+        function analyzeSymbol(symbolId) {
+            const data = db[symbolId];
+            if (data.h1.length === 0 || data.m15.length === 0 || data.m5.length === 0) return;
+
+            const currentPrice = data.price;
+
+            // 1. Estructura H1
+            const h1Fractals = identifyFractals(data.h1);
+            const h1Trend = determineTrend(h1Fractals.highs, h1Fractals.lows);
+            const h1Support = h1Fractals.lows.slice(-3).map(f => f.price);
+            const h1Resistance = h1Fractals.highs.slice(-3).map(f => f.price);
+
+            // 2. Estructura M15
+            const m15Fractals = identifyFractals(data.m15);
+            const m15Trend = determineTrend(m15Fractals.highs, m15Fractals.lows);
+            const trendAligned = (h1Trend === m15Trend && h1Trend !== 'LATERAL');
+
+            // 3. Proximidad a la Zona de Soporte o Resistencia H1
+            let nearSupport = false;
+            let nearResistance = false;
+            let targetZone = null;
+            const tolerance = currentPrice * 0.0012; 
+
+            h1Support.forEach(level => {
+                if (Math.abs(currentPrice - level) <= tolerance) {
+                    nearSupport = true;
+                    targetZone = level;
+                }
+            });
+
+            h1Resistance.forEach(level => {
+                if (Math.abs(currentPrice - level) <= tolerance) {
+                    nearResistance = true;
+                    targetZone = level;
+                }
+            });
+
+            // 4. Gatillado M5 (CHoCH o rechazos de mecha)
+            const m5Fractals = identifyFractals(data.m5);
+            let m5Trigger = false;
+            let triggerPattern = "Ninguno";
+
+            if (nearSupport && h1Trend === 'BULLISH') {
+                if (m5Fractals.highs.length > 0) {
+                    const lastM5High = m5Fractals.highs[m5Fractals.highs.length - 1].price;
+                    if (currentPrice > lastM5High) {
+                        m5Trigger = true;
+                        triggerPattern = "CHoCH Alcista M5 (Ruptura)";
+                    }
+                }
+                const lastCandle = data.m5[data.m5.length - 1];
+                if (lastCandle) {
+                    const body = Math.abs(lastCandle.close - lastCandle.open);
+                    const lowerWick = Math.min(lastCandle.open, lastCandle.close) - lastCandle.low;
+                    if (lowerWick > body * 2.0) {
+                        m5Trigger = true;
+                        triggerPattern = "Rechazo por Mecha Inferior (M5)";
+                    }
+                }
+            } else if (nearResistance && h1Trend === 'BEARISH') {
+                if (m5Fractals.lows.length > 0) {
+                    const lastM5Low = m5Fractals.lows[m5Fractals.lows.length - 1].price;
+                    if (currentPrice < lastM5Low) {
+                        m5Trigger = true;
+                        triggerPattern = "CHoCH Bajista M5 (Ruptura)";
+                    }
+                }
+                const lastCandle = data.m5[data.m5.length - 1];
+                if (lastCandle) {
+                    const body = Math.abs(lastCandle.close - lastCandle.open);
+                    const upperWick = lastCandle.high - Math.max(lastCandle.open, lastCandle.close);
+                    if (upperWick > body * 2.0) {
+                        m5Trigger = true;
+                        triggerPattern = "Rechazo por Mecha Superior (M5)";
+                    }
+                }
+            }
+
+            // 5. Fuerza e impulso
+            let impulseScore = 0;
+            const lastThree = data.m5.slice(-3);
+            if (lastThree.length === 3) {
+                const upCandles = lastThree.filter(c => c.close > c.open).length;
+                if (h1Trend === 'BULLISH' && upCandles >= 2) {
+                    impulseScore = 10;
+                } else if (h1Trend === 'BEARISH' && upCandles <= 1) {
+                    impulseScore = 10;
+                }
+            }
+
+            // 6. Matriz de Puntuación Estricta
+            const scoreH1 = h1Trend !== 'LATERAL' ? 25 : 0;
+            const scoreM15 = trendAligned ? 20 : 0;
+            const scoreZone = (nearSupport || nearResistance) ? 25 : 0;
+            const scoreM5 = m5Trigger ? 20 : 0;
+            const totalScore = scoreH1 + scoreM15 + scoreZone + scoreM5 + impulseScore;
+
+            data.analysis = {
+                h1Trend,
+                m15Trend,
+                trendAligned,
+                h1Support,
+                h1Resistance,
+                nearSupport,
+                nearResistance,
+                targetZone,
+                m5Trigger,
+                triggerPattern,
+                scores: { scoreH1, scoreM15, scoreZone, scoreM5, impulseScore, totalScore }
+            };
+
+            const pos = positions[symbolId];
+            if (!pos || pos.state === 'IDLE') {
+                updateSidebarWidget(symbolId, totalScore, h1Trend, nearSupport || nearResistance);
+            }
+            
+            if (symbolId === activeSymbol) {
+                updateScoringUI(data.analysis, currentPrice);
+            }
+        }
+
+        // GESTIÓN Y SEGUIMIENTO DE POSICIONES PERSISTENTES
+        function manageActivePosition(symbolId, price) {
+            const data = db[symbolId];
+            const analysis = data.analysis;
+            if (!analysis) return;
+
+            let pos = positions[symbolId];
+
+            if (!pos || pos.state === 'IDLE') {
+                if (analysis.scores.totalScore >= 80) {
+                    let direction = "";
+                    let sl = 0;
+                    let tp = 0;
+
+                    if (analysis.nearSupport && analysis.h1Trend === 'BULLISH') {
+                        direction = "BUY";
+                        sl = analysis.targetZone - (analysis.targetZone * 0.0015);
+                        const risk = price - sl;
+                        tp = price + (risk * 3.2);
+                    } else if (analysis.nearResistance && analysis.h1Trend === 'BEARISH') {
+                        direction = "SELL";
+                        sl = analysis.targetZone + (analysis.targetZone * 0.0015);
+                        const risk = sl - price;
+                        tp = price - (risk * 3.2);
                     }
 
-                    // Encontrar el par con mayor liquidez
-                    const bestPair = [...pairs].sort((a,b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-                    const symbol = bestPair.baseToken.symbol;
-                    const name = bestPair.baseToken.name;
-                    const price = parseFloat(bestPair.priceUsd) || 1.0;
-                    const address = bestPair.baseToken.address;
-
-                    const newToken = {
-                        id: 'custom-' + Date.now(),
-                        symbol,
-                        name,
-                        address,
-                        price,
-                        change24h: bestPair.priceChange?.h24 || 0,
-                        custom: true
-                    };
-
-                    tokens.push(newToken);
-                    initTokenDb(address, price);
-                    activeAddress = address;
-
-                    inputEl.value = '';
-                    logMessage(symbol, `Token indexado con éxito y enlazado a la matriz estructural M5. Price: $${price}`, 'success');
-                    playSignalChirp(1100, 2200);
-
-                    updateUI();
-                    resizeCanvas();
-                })
-                .catch(err => {
-                    errorEl.textContent = err.message || "Error al indexar el token.";
-                    errorEl.classList.remove('hidden');
-                    logMessage('SYSTEM', `Fallo al indexar la consulta "${query}".`, 'warn');
-                });
-        }
-
-        // Eliminar un token
-        function deleteToken(address) {
-            const found = tokens.find(t => t.address === address);
-            if (!found) return;
-
-            tokens = tokens.filter(t => t.address !== address);
-            delete db[address];
-            delete positions[address];
-
-            logMessage('SYSTEM', `Token ${found.symbol} desvinculado con éxito.`, 'info');
-
-            if (activeAddress === address && tokens.length > 0) {
-                activeAddress = tokens[0].address;
+                    if (direction) {
+                        positions[symbolId] = {
+                            state: 'ACTIVE',
+                            direction: direction,
+                            entryPrice: price,
+                            sl: sl,
+                            tp: tp,
+                            initialSl: sl,
+                            initialTp: tp,
+                            originZone: analysis.targetZone,
+                            timestamp: Date.now(),
+                            highestPrice: price,
+                            lowestPrice: price,
+                            invalidationReason: ""
+                        };
+                        playSignalChirp();
+                        logMessage(symbolId, `🟢 POSICIÓN ABIERTA: ${direction} a precio ${price.toFixed(4)} | SL: ${sl.toFixed(4)} | TP: ${tp.toFixed(4)} (Origen H1: ${analysis.targetZone.toFixed(2)})`, 'success');
+                    }
+                }
+                return;
             }
 
-            updateUI();
-            resizeCanvas();
+            if (pos.state === 'ACTIVE') {
+                if (price > pos.highestPrice) pos.highestPrice = price;
+                if (price < pos.lowestPrice) pos.lowestPrice = price;
+
+                if (pos.direction === 'BUY') {
+                    if (price >= pos.tp) {
+                        pos.state = 'CLOSED_TP';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (TAKE PROFIT alcanzado) en ${price.toFixed(4)}`, 'success');
+                        playSignalChirp();
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (price <= pos.sl) {
+                        pos.state = 'CLOSED_SL';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (STOP LOSS alcanzado) en ${price.toFixed(4)}`, 'warn');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                } else if (pos.direction === 'SELL') {
+                    if (price <= pos.tp) {
+                        pos.state = 'CLOSED_TP';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (TAKE PROFIT alcanzado) en ${price.toFixed(4)}`, 'success');
+                        playSignalChirp();
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (price >= pos.sl) {
+                        pos.state = 'CLOSED_SL';
+                        logMessage(symbolId, `⚪ POSICIÓN CERRADA (STOP LOSS alcanzado) en ${price.toFixed(4)}`, 'warn');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                }
+
+                if (pos.direction === 'BUY' && (analysis.h1Trend === 'BEARISH' || analysis.m15Trend === 'BEARISH')) {
+                    pos.state = 'INVALIDATED';
+                    pos.invalidationReason = "Estructura Macro revertida a Bajista";
+                    logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre inmediato a mercado: ${price.toFixed(4)}`, 'alert');
+                    startClearTimer(symbolId);
+                    return;
+                }
+                if (pos.direction === 'SELL' && (analysis.h1Trend === 'BULLISH' || analysis.m15Trend === 'BULLISH')) {
+                    pos.state = 'INVALIDATED';
+                    pos.invalidationReason = "Estructura Macro revertida a Alcista";
+                    logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre inmediato a mercado: ${price.toFixed(4)}`, 'alert');
+                    startClearTimer(symbolId);
+                    return;
+                }
+
+                const lastM5Candle = data.m5[data.m5.length - 1];
+                if (lastM5Candle) {
+                    if (pos.direction === 'BUY' && lastM5Candle.close < pos.originZone) {
+                        pos.state = 'INVALIDATED';
+                        pos.invalidationReason = "Ruptura del Soporte H1 origen";
+                        logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre a ${price.toFixed(4)}`, 'alert');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                    if (pos.direction === 'SELL' && lastM5Candle.close > pos.originZone) {
+                        pos.state = 'INVALIDATED';
+                        pos.invalidationReason = "Ruptura de la Resistencia H1 origen";
+                        logMessage(symbolId, `🔴 POSICIÓN INVALIDADA: ${pos.invalidationReason}. Cierre a ${price.toFixed(4)}`, 'alert');
+                        startClearTimer(symbolId);
+                        return;
+                    }
+                }
+
+                const m5Fractals = identifyFractals(data.m5);
+                if (pos.direction === 'BUY') {
+                    const m5Lows = m5Fractals.lows.map(f => f.price);
+                    if (m5Lows.length > 0) {
+                        const latestLow = m5Lows[m5Lows.length - 1];
+                        if (latestLow > pos.sl && latestLow > pos.entryPrice && latestLow < price) {
+                            pos.sl = latestLow;
+                            logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a mínimo M5: ${latestLow.toFixed(4)}`, 'success');
+                        }
+                    }
+                } else if (pos.direction === 'SELL') {
+                    const m5Highs = m5Fractals.highs.map(f => f.price);
+                    if (m5Highs.length > 0) {
+                        const latestHigh = m5Highs[m5Highs.length - 1];
+                        if (latestHigh < pos.sl && latestHigh < pos.entryPrice && latestHigh > price) {
+                            pos.sl = latestHigh;
+                            logMessage(symbolId, `🛡️ Ajustando Trailing Stop Loss Estructural a máximo M5: ${latestHigh.toFixed(4)}`, 'success');
+                        }
+                    }
+                }
+
+                const badge = document.getElementById(`score-badge-${symbolId}`);
+                if (badge) {
+                    badge.textContent = pos.direction;
+                    badge.className = pos.direction === 'BUY'
+                        ? "font-mono text-[10px] bg-cyber-green/20 border border-cyber-green text-cyber-green px-2 py-0.5 rounded font-bold animate-pulse"
+                        : "font-mono text-[10px] bg-cyber-red/20 border border-cyber-red text-cyber-red px-2 py-0.5 rounded font-bold animate-pulse";
+                }
+                const statusText = document.getElementById(`status-${symbolId}`);
+                if (statusText) {
+                    statusText.textContent = "POSICIÓN ACTIVA";
+                    statusText.className = "px-2 py-0.5 rounded-full bg-cyber-blue/10 border border-cyber-blue/40 text-cyber-blue text-[9px] font-bold";
+                }
+            }
         }
 
-        // FRACTALES DE 5 VELAS (IDENTIFICA PUNTOS EXTREMOS MÍNIMOS Y MÁXIMOS LOCALES)
+        function startClearTimer(symbolId) {
+            setTimeout(() => {
+                positions[symbolId] = { state: 'IDLE' };
+                logMessage(symbolId, "Retornando a escaneo de mercado de alta precisión. Esperando Setup...");
+                analyzeSymbol(symbolId);
+            }, 10000);
+        }
+
+        // FRACTALES DE 5 VELAS
         function identifyFractals(candles) {
             const highs = [];
             const lows = [];
-            const n = 2; // Izquierda y derecha
+            const n = 2;
 
             for (let i = n; i < candles.length - n; i++) {
                 let isHigh = true;
@@ -580,7 +963,7 @@
             return { highs, lows };
         }
 
-        // DETERMINACIÓN DE LA TENDENCIA MACRO (HH-HL) O (LH-LL)
+        // DETERMINACIÓN DE LA TENDENCIA MACRO (HH-HL / LH-LL)
         function determineTrend(highs, lows) {
             if (highs.length < 2 || lows.length < 2) return 'LATERAL';
             
@@ -594,15 +977,16 @@
             return 'LATERAL';
         }
 
-        // CONSTRUCCIÓN DEL ALGORITMO SINTÉTICO DEL RSI(14) ORIGINAL DE WILDER
+        // CÁLCULO MATEMÁTICO REAL DEL RSI(14)
         function calculateRSI(candles, period = 14) {
             if (!candles || candles.length <= period) return 50.0;
+            const sorted = [...candles].sort((a, b) => a.time - b.time);
             
             let gains = [];
             let losses = [];
 
-            for (let i = 1; i < candles.length; i++) {
-                const diff = candles[i].close - candles[i - 1].close;
+            for (let i = 1; i < sorted.length; i++) {
+                const diff = sorted[i].close - sorted[i - 1].close;
                 if (diff > 0) {
                     gains.push(diff);
                     losses.push(0);
@@ -636,481 +1020,88 @@
             return 100 - (100 / (1 + rs));
         }
 
-        // Cambiar timeframe de visualización general
+        // ENRUTADOR DEL CAMBIO DE TIMEFRAME DEL RSI CONFIGURABLE
         function changeRSITimeframe() {
-            rsiTimeframe = document.getElementById('rsi-tf-select').value;
-            updateUI();
+            const selectEl = document.getElementById('rsi-tf-select');
+            if (selectEl) {
+                rsiTimeframe = selectEl.value;
+                updateRSIWidgets();
+                logMessage(null, `Osciladores RSI reconfigurados a temporalidad: ${rsiTimeframe.toUpperCase()}`);
+            }
         }
 
-        // CORE SYSTEM: Evalua la estructura y determina el puntaje de disparo
-        function analyzeMarket(address) {
-            const data = db[address];
-            if (!data) return;
+        // GESTIÓN DE COLORES Y CÁLCULO DE RSI CONFIGURABLE EN VIVO
+        function updateRSIWidgets() {
+            ['1HZ50V', '1HZ75V', '1HZ100V'].forEach(id => {
+                const candles = db[id][rsiTimeframe]; // Carga dinámicamente el timeframe seleccionado (m5, m15, h1)
+                if (!candles || candles.length < 15) return;
 
-            const currentPrice = data.price;
+                const rsiVal = calculateRSI(candles, 14);
+                const rsiValEl = document.getElementById(`rsi-val-${id}`);
+                const rsiCardEl = document.getElementById(`rsi-card-${id}`);
 
-            // 1. Estructura H1
-            const h1Fractals = identifyFractals(data.h1);
-            const h1Trend = determineTrend(h1Fractals.highs, h1Fractals.lows);
-            const h1Support = h1Fractals.lows.slice(-3).map(f => f.price);
-            const h1Resistance = h1Fractals.highs.slice(-3).map(f => f.price);
+                if (rsiValEl && rsiCardEl) {
+                    rsiValEl.textContent = rsiVal.toFixed(1);
 
-            // 2. Estructura M15
-            const m15Fractals = identifyFractals(data.m15);
-            const m15Trend = determineTrend(m15Fractals.highs, m15Fractals.lows);
-            const trendAligned = (h1Trend === m15Trend && h1Trend !== 'LATERAL');
-
-            // 3. Proximidad a zonas H1 (Soporte o Resistencia)
-            let nearSupport = false;
-            let nearResistance = false;
-            let targetZone = null;
-            const tolerance = currentPrice * 0.0015; // 0.15%
-
-            h1Support.forEach(level => {
-                if (Math.abs(currentPrice - level) <= tolerance) {
-                    nearSupport = true;
-                    targetZone = level;
+                    if (rsiVal >= 80) {
+                        rsiCardEl.className = "bg-cyber-red/20 border border-cyber-red p-2.5 rounded-lg text-center glow-red transition-all duration-300 animate-pulse";
+                        rsiValEl.className = "font-mono text-sm font-bold text-cyber-red";
+                    } else if (rsiVal <= 20) {
+                        rsiCardEl.className = "bg-cyber-green/20 border border-cyber-green p-2.5 rounded-lg text-center glow-green transition-all duration-300 animate-pulse";
+                        rsiValEl.className = "font-mono text-sm font-bold text-cyber-green";
+                    } else {
+                        rsiCardEl.className = "bg-[#121614] border border-cyber-border p-2.5 rounded-lg text-center transition-all duration-300 hover:border-cyber-green/20";
+                        rsiValEl.className = "font-mono text-sm font-bold text-white";
+                    }
                 }
             });
-
-            h1Resistance.forEach(level => {
-                if (Math.abs(currentPrice - level) <= tolerance) {
-                    nearResistance = true;
-                    targetZone = level;
-                }
-            });
-
-            // 4. Gatillado M5 (CHoCH o mechas extremas)
-            const m5Fractals = identifyFractals(data.m5);
-            let m5Trigger = false;
-            let triggerPattern = "Ninguno";
-
-            if (nearSupport && h1Trend === 'BULLISH') {
-                if (m5Fractals.highs.length > 0) {
-                    const lastM5High = m5Fractals.highs[m5Fractals.highs.length - 1].price;
-                    if (currentPrice > lastM5High) {
-                        m5Trigger = true;
-                        triggerPattern = "CHoCH Alcista M5 (Break)";
-                    }
-                }
-                const lastCandle = data.m5[data.m5.length - 1];
-                if (lastCandle) {
-                    const body = Math.abs(lastCandle.close - lastCandle.open);
-                    const lowerWick = Math.min(lastCandle.open, lastCandle.close) - lastCandle.low;
-                    if (lowerWick > body * 1.8) {
-                        m5Trigger = true;
-                        triggerPattern = "Vela de Mecha de Rechazo Inferior";
-                    }
-                }
-            } else if (nearResistance && h1Trend === 'BEARISH') {
-                if (m5Fractals.lows.length > 0) {
-                    const lastM5Low = m5Fractals.lows[m5Fractals.lows.length - 1].price;
-                    if (currentPrice < lastM5Low) {
-                        m5Trigger = true;
-                        triggerPattern = "CHoCH Bajista M5 (Break)";
-                    }
-                }
-                const lastCandle = data.m5[data.m5.length - 1];
-                if (lastCandle) {
-                    const body = Math.abs(lastCandle.close - lastCandle.open);
-                    const upperWick = lastCandle.high - Math.max(lastCandle.open, lastCandle.close);
-                    if (upperWick > body * 1.8) {
-                        m5Trigger = true;
-                        triggerPattern = "Vela de Mecha de Rechazo Superior";
-                    }
-                }
-            }
-
-            // 5. Fuerza e impulso
-            let impulseScore = 0;
-            const lastThree = data.m5.slice(-3);
-            if (lastThree.length === 3) {
-                const alcistas = lastThree.filter(c => c.close > c.open).length;
-                if (h1Trend === 'BULLISH' && alcistas >= 2) {
-                    impulseScore = 10;
-                } else if (h1Trend === 'BEARISH' && alcistas <= 1) {
-                    impulseScore = 10;
-                }
-            }
-
-            // Puntuación
-            const scoreH1 = h1Trend !== 'LATERAL' ? 25 : 0;
-            const scoreM15 = trendAligned ? 20 : 0;
-            const scoreZone = (nearSupport || nearResistance) ? 25 : 0;
-            const scoreM5 = m5Trigger ? 20 : 0;
-            const totalScore = scoreH1 + scoreM15 + scoreZone + scoreM5 + impulseScore;
-
-            data.analysis = {
-                h1Trend,
-                m15Trend,
-                trendAligned,
-                h1Support,
-                h1Resistance,
-                nearSupport,
-                nearResistance,
-                targetZone,
-                m5Trigger,
-                triggerPattern,
-                scores: { scoreH1, scoreM15, scoreZone, scoreM5, impulseScore, totalScore }
-            };
-
-            // Ejecución automática simulada del Sniper
-            const pos = positions[address];
-            const tokenDetail = tokens.find(t => t.address === address);
-
-            if (pos.state === 'IDLE') {
-                if (totalScore >= 80) {
-                    let direction = "";
-                    let sl = 0;
-                    let tp = 0;
-
-                    if (nearSupport && h1Trend === 'BULLISH') {
-                        direction = "BUY";
-                        sl = targetZone - (targetZone * 0.0018);
-                        const risk = currentPrice - sl;
-                        tp = currentPrice + (risk * 3.2);
-                    } else if (nearResistance && h1Trend === 'BEARISH') {
-                        direction = "SELL";
-                        sl = targetZone + (targetZone * 0.0018);
-                        const risk = sl - currentPrice;
-                        tp = currentPrice - (risk * 3.2);
-                    }
-
-                    if (direction) {
-                        positions[address] = {
-                            state: 'ACTIVE',
-                            direction: direction,
-                            entryPrice: currentPrice,
-                            sl: sl,
-                            tp: tp,
-                            initialSl: sl,
-                            initialTp: tp,
-                            originZone: targetZone,
-                            timestamp: Date.now(),
-                            highestPrice: currentPrice,
-                            lowestPrice: currentPrice
-                        };
-                        playSignalChirp(1200, 2400);
-                        logMessage(tokenDetail.symbol, `🟢 POSICIÓN ABIERTA: ${direction} a $${currentPrice.toFixed(4)} SL: $${sl.toFixed(4)} - TP: $${tp.toFixed(4)}`, 'success');
-                    }
-                }
-            } else if (pos.state === 'ACTIVE') {
-                // Tracking de posición real-time
-                if (currentPrice > pos.highestPrice) pos.highestPrice = currentPrice;
-                if (currentPrice < pos.lowestPrice) pos.lowestPrice = currentPrice;
-
-                if (pos.direction === 'BUY') {
-                    if (currentPrice >= pos.tp) {
-                        pos.state = 'CLOSED_TP';
-                        logMessage(tokenDetail.symbol, `🎯 TAKE PROFIT ALCANZADO en $${currentPrice.toFixed(4)}! (Rentabilidad máxima exitosa)`, 'success');
-                        playSignalChirp(1400, 2800);
-                        resetPostPosition(address);
-                    } else if (currentPrice <= pos.sl) {
-                        pos.state = 'CLOSED_SL';
-                        logMessage(tokenDetail.symbol, `🛑 STOP LOSS ALCANZADO en $${currentPrice.toFixed(4)}. Reducción de riesgos.`, 'warn');
-                        resetPostPosition(address);
-                    }
-                } else {
-                    if (currentPrice <= pos.tp) {
-                        pos.state = 'CLOSED_TP';
-                        logMessage(tokenDetail.symbol, `🎯 TAKE PROFIT ALCANZADO en $${currentPrice.toFixed(4)}! (Rentabilidad máxima exitosa)`, 'success');
-                        playSignalChirp(1400, 2800);
-                        resetPostPosition(address);
-                    } else if (currentPrice >= pos.sl) {
-                        pos.state = 'CLOSED_SL';
-                        logMessage(tokenDetail.symbol, `🛑 STOP LOSS ALCANZADO en $${currentPrice.toFixed(4)}. Reducción de riesgos.`, 'warn');
-                        resetPostPosition(address);
-                    }
-                }
-
-                // Trailing Stop basado en nuevos Fractales M5 alcistas/bajistas
-                if (pos.state === 'ACTIVE') {
-                    if (pos.direction === 'BUY') {
-                        const m5Lows = m5Fractals.lows.map(f => f.price);
-                        if (m5Lows.length > 0) {
-                            const latestLow = m5Lows[m5Lows.length - 1];
-                            if (latestLow > pos.sl && latestLow > pos.entryPrice && latestLow < currentPrice) {
-                                pos.sl = latestLow;
-                                logMessage(tokenDetail.symbol, `🛡️ Trailing Stop estructural ajustado a: $${latestLow.toFixed(4)}`, 'success');
-                            }
-                        }
-                    } else {
-                        const m5Highs = m5Fractals.highs.map(f => f.price);
-                        if (m5Highs.length > 0) {
-                            const latestHigh = m5Highs[m5Highs.length - 1];
-                            if (latestHigh < pos.sl && latestHigh < pos.entryPrice && latestHigh > currentPrice) {
-                                pos.sl = latestHigh;
-                                logMessage(tokenDetail.symbol, `🛡️ Trailing Stop estructural ajustado a: $${latestHigh.toFixed(4)}`, 'success');
-                            }
-                        }
-                    }
-                }
-            }
         }
 
-        function resetPostPosition(address) {
-            setTimeout(() => {
-                positions[address] = { state: 'IDLE' };
-                logMessage(null, "Estructuras reseteadas. Iniciando escaneo cuántico habitual...");
-                updateUI();
-            }, 8000);
-        }
+        // CÁLCULO MATEMÁTICO DE LA MEDIA MÓVIL (LINEA DE TENDENCIA ADHERIDA A VELAS)
+        function calculateEMA(candles, period = 9) {
+            const emaValues = [];
+            if (candles.length === 0) return emaValues;
 
-        // SELECCIÓN DE ACTIVO PARA EVALUAR GRÁFICO
-        function selectSymbol(address) {
-            activeAddress = address;
-            updateUI();
-            resizeCanvas();
-        }
+            const k = 2 / (period + 1);
+            let ema = candles[0].close;
+            emaValues.push({ time: candles[0].time, value: ema });
 
-        // MOTOR DE RENDERIZACIÓN DE LA UI DINÁMICA DE ALTA CALIDAD
-        function updateUI() {
-            // Actualizar Contador de tokens en la cabecera del manager
-            document.getElementById('token-counter').textContent = `${tokens.length}/20 Activos`;
-
-            // Llenar Instrumentos Monitoreados
-            const monitoredList = document.getElementById('monitored-tokens-list');
-            monitoredList.innerHTML = '';
-
-            tokens.forEach(tok => {
-                const data = db[tok.address];
-                if (!data) return;
-
-                const score = data.analysis?.scores.totalScore || 0;
-                const trend = data.analysis?.h1Trend || 'LATERAL';
-                const pos = positions[tok.address];
-
-                const isActive = tok.address === activeAddress;
-                const isPriceUp = data.price >= data.prevPrice;
-
-                // Clases del Badge de Status
-                let statusBadge = `<span class="px-2 py-0.5 rounded-full bg-navy-dark border border-navy-light text-slate-500 text-[9.5px] font-mono">ESCANEO</span>`;
-                if (pos && pos.state === 'ACTIVE') {
-                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-cyber-green/10 border border-cyber-green/30 text-cyber-green text-[9.5px] font-bold animate-pulse font-mono">POSICIÓN</span>`;
-                } else if (score >= 80) {
-                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-gold-dim border border-gold-corp text-gold-bright text-[9.5px] font-bold animate-pulse font-mono">SNIPER</span>`;
-                } else if (data.analysis?.nearSupport || data.analysis?.nearResistance) {
-                    statusBadge = `<span class="px-2 py-0.5 rounded-full bg-navy-light border border-gold-corp/20 text-blue-300 text-[9.5px] font-mono">ZONA H1</span>`;
-                }
-
-                // Trend styling
-                let trendText = '<span class="text-slate-500 uppercase">◆ Rango</span>';
-                if (trend === 'BULLISH') trendText = '<span class="text-cyber-green uppercase">▲ Alcista</span>';
-                if (trend === 'BEARISH') trendText = '<span class="text-cyber-red uppercase">▼ Bajista</span>';
-
-                // Precision formatting for tiny tokens (e.g. BONK)
-                const priceStr = data.price < 0.001 ? data.price.toFixed(8) : data.price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-
-                const cardDiv = document.createElement('div');
-                cardDiv.onclick = () => selectSymbol(tok.address);
-                cardDiv.className = `relative overflow-hidden cursor-pointer rounded-xl border p-4 transition-all duration-300 group ${
-                    isActive 
-                        ? 'bg-navy-card border-gold-corp glow-gold'
-                        : 'bg-navy-card/40 border-navy-light hover:border-gold-corp/30'
-                }`;
-
-                cardDiv.innerHTML = `
-                    <div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-gold-corp/5 to-transparent rounded-full blur-xl group-hover:from-gold-corp/10 transition"></div>
-                    <div class="flex justify-between items-start mb-2 relative z-10">
-                        <div class="flex-1 min-w-0 pr-2">
-                            <div class="flex items-center gap-1.5 flex-nowrap">
-                                <span class="font-mono text-xs font-bold text-slate-200 uppercase truncate">${tok.symbol}</span>
-                                ${tok.custom ? '<span class="text-[8px] px-1 bg-gold-dim border border-gold-corp/20 text-gold-corp rounded uppercase font-mono">Manual</span>' : ''}
-                            </div>
-                            <span class="text-[10px] text-slate-500 block truncate leading-none mt-0.5">${tok.name}</span>
-                            <div class="font-mono text-base font-bold tracking-tight mt-1.5 ${isPriceUp ? 'text-cyber-green' : 'text-cyber-red'}">${priceStr}</div>
-                        </div>
-                        <div class="flex flex-col items-end gap-1.5 shrink-0">
-                            <span class="font-mono text-[9px] px-2 py-0.5 rounded border ${score >= 80 ? 'border-cyber-green bg-cyber-green/5 text-cyber-green' : 'border-navy-light text-slate-400'}">${score} PTS</span>
-                            ${tok.custom ? `
-                                <button onclick="event.stopPropagation(); deleteToken('${tok.address}')" class="p-1 rounded bg-navy-dark border border-navy-light hover:bg-cyber-red/10 hover:border-cyber-red/30 hover:text-cyber-red text-slate-500 transition">
-                                    <i class="fa-solid fa-trash-can text-[10px]"></i>
-                                </button>
-                            ` : ''}
-                        </div>
-                    </div>
-                    <div class="flex items-center justify-between text-[11px] mt-2.5 pt-2.5 border-t border-navy-light/40 relative z-10 font-mono">
-                        ${trendText}
-                        ${statusBadge}
-                    </div>
-                `;
-
-                monitoredList.appendChild(cardDiv);
-            });
-
-            // Llenar Tripleta del RSI del footer
-            const rsiContainer = document.getElementById('rsi-widgets-container');
-            rsiContainer.innerHTML = '';
-            
-            for(let i=0; i<3; i++) {
-                const tok = tokens[i];
-                if (!tok) {
-                    rsiContainer.innerHTML += `
-                        <div class="bg-navy-dark/40 border border-navy-light/10 p-2.5 rounded-lg text-center opacity-30 select-none">
-                            <span class="text-[8px] text-slate-600 font-mono block">VACÍO</span>
-                            <span class="font-mono text-xs text-slate-500 font-bold">--.-</span>
-                        </div>
-                    `;
-                    continue;
-                }
-
-                const data = db[tok.address];
-                const activeSet = rsiTimeframe === 'm5' ? data.m5 : rsiTimeframe === 'm15' ? data.m15 : data.h1;
-                const rsiVal = calculateRSI(activeSet, 14);
-
-                let rsiClass = 'bg-navy-dark border-navy-light hover:border-gold-corp/30 text-slate-300';
-                if (rsiVal <= 22) rsiClass = 'bg-cyber-green/10 border-cyber-green text-cyber-green animate-pulse glow-green';
-                if (rsiVal >= 78) rsiClass = 'bg-cyber-red/10 border-cyber-red text-cyber-red animate-pulse glow-red';
-
-                rsiContainer.innerHTML += `
-                    <div class="border p-2 rounded-lg text-center transition-all duration-300 ${rsiClass}">
-                        <span class="text-[8px] text-slate-500 font-mono block truncate">RSI ${tok.symbol}</span>
-                        <span class="font-mono text-xs font-bold block mt-1">${rsiVal.toFixed(1)}</span>
-                    </div>
-                `;
+            for (let i = 1; i < candles.length; i++) {
+                ema = candles[i].close * k + ema * (1 - k);
+                emaValues.push({ time: candles[i].time, value: ema });
             }
-
-            // Actualizar Cockpit para Token Activo actual
-            const activeTok = tokens.find(t => t.address === activeAddress);
-            if (activeTok) {
-                const data = db[activeAddress];
-                const analysis = data.analysis;
-                const pos = positions[activeAddress];
-
-                document.getElementById('chart-symbol-badge').textContent = activeTok.symbol;
-                document.getElementById('chart-symbol-title').textContent = `${activeTok.name} Index`;
-
-                // Metricas de decision checklist
-                if (analysis) {
-                    const sc = analysis.scores;
-                    
-                    // Score Text inside standard Circle
-                    let dashOffset = 390;
-                    let displayScore = sc.totalScore;
-                    let displaySub = 'PTS';
-                    let circleColor = '#d4af37';
-
-                    if (pos && pos.state === 'ACTIVE') {
-                        let progress = 0;
-                        if (pos.direction === 'BUY') {
-                            const dist = pos.tp - pos.entryPrice;
-                            progress = ((data.price - pos.entryPrice) / dist) * 100;
-                        } else {
-                            const dist = pos.entryPrice - pos.tp;
-                            progress = ((pos.entryPrice - data.price) / dist) * 100;
-                        }
-                        progress = Math.max(0, Math.min(100, Math.round(progress)));
-                        displayScore = `${progress}%`;
-                        displaySub = 'PROGRESS';
-                        dashOffset = 390 - (390 * progress) / 100;
-                        circleColor = pos.direction === 'BUY' ? '#00e676' : '#ff3c5f';
-                        document.getElementById('quality-badge').textContent = `POSICIÓN ${pos.direction} ACTIVA`;
-                        document.getElementById('quality-badge').className = `px-4 py-1.5 rounded ${pos.direction === 'BUY'?'bg-cyber-green/15 border-cyber-green text-cyber-green glow-green':'bg-cyber-red/15 border-cyber-red text-cyber-red glow-red'} inline-block text-[11px] font-mono font-bold tracking-widest animate-pulse`;
-                    } else if (pos && pos.state !== 'IDLE') {
-                        // Closed limits state
-                        displayScore = 'COMP';
-                        displaySub = pos.state.replace('CLOSED_','');
-                        dashOffset = 0;
-                        circleColor = pos.state === 'CLOSED_TP' ? '#00e676' : '#ff3c5f';
-                        document.getElementById('quality-badge').textContent = 'EVALUADO SNIPER';
-                        document.getElementById('quality-badge').className = 'px-4 py-1.5 rounded bg-navy-dark border border-navy-light text-slate-500 inline-block text-[11px] font-mono tracking-widest';
-                    } else {
-                        dashOffset = 390 - (390 * sc.totalScore) / 100;
-                        if (sc.totalScore >= 80) {
-                            circleColor = '#00e676';
-                            document.getElementById('quality-badge').textContent = "DISPARO SNIPER GATILLADO";
-                            document.getElementById('quality-badge').className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
-                        } else if (sc.totalScore >= 60) {
-                            document.getElementById('quality-badge').textContent = "MONITOREO CRÍTICO";
-                            document.getElementById('quality-badge').className = "px-4 py-1.5 rounded bg-gold-dim border border-gold-corp text-gold-bright inline-block text-[11px] font-mono font-bold tracking-widest";
-                        } else {
-                            document.getElementById('quality-badge').textContent = "BUCEANDO SEÑAL";
-                            document.getElementById('quality-badge').className = "px-4 py-1.5 rounded bg-navy-dark border border-navy-light text-slate-500 inline-block text-[11px] font-mono tracking-widest";
-                        }
-                    }
-
-                    document.getElementById('score-text').textContent = displayScore;
-                    document.getElementById('score-circle').setAttribute('stroke-dashoffset', dashOffset);
-                    document.getElementById('score-circle').setAttribute('stroke', circleColor);
-
-                    // Checklist
-                    document.getElementById('score-h1').textContent = `${sc.scoreH1}/25 PTS`;
-                    document.getElementById('score-h1').className = `font-mono font-bold ${sc.scoreH1>0?'text-cyber-green':'text-slate-600'}`;
-                    document.getElementById('h1-details').textContent = analysis.h1Trend !== 'LATERAL' ? `H1 Tendencia: ${analysis.h1Trend}` : "BOS/CHoCH no definido macro ";
-
-                    document.getElementById('score-m15').textContent = `${sc.scoreM15}/20 PTS`;
-                    document.getElementById('score-m15').className = `font-mono font-bold ${sc.scoreM15>0?'text-cyber-green':'text-slate-600'}`;
-                    document.getElementById('m15-details').textContent = analysis.trendAligned ? "Alineado con H1" : "Estructura desalineada";
-
-                    document.getElementById('score-zone').textContent = `${sc.scoreZone}/25 PTS`;
-                    document.getElementById('score-zone').className = `font-mono font-bold ${sc.scoreZone>0?'text-cyber-green':'text-slate-600'}`;
-                    document.getElementById('zone-details').textContent = (analysis.nearSupport || analysis.nearResistance) ? `Testeo de Zona S/R H1` : "Precio fuera de bloques Macro";
-
-                    document.getElementById('score-m5').textContent = `${sc.scoreM5}/20 PTS`;
-                    document.getElementById('score-m5').className = `font-mono font-bold ${sc.scoreM5>0?'text-cyber-green':'text-slate-600'}`;
-                    document.getElementById('m5-details').textContent = analysis.m5Trigger ? analysis.triggerPattern : "Esperando mecha o ruptura";
-
-                    document.getElementById('score-impulse').textContent = `${sc.impulseScore}/10 PTS`;
-                    document.getElementById('score-impulse').className = `font-mono font-bold ${sc.impulseScore>0?'text-cyber-green':'text-slate-600'}`;
-                    document.getElementById('impulse-details').textContent = sc.impulseScore > 0 ? "Momentum direccional fuerte" : "Volumen en fase intermedia";
-
-                    // Panel de gatillo de ordenes
-                    const triggerPanel = document.getElementById('trigger-panel');
-                    if (pos && pos.state !== 'IDLE') {
-                        triggerPanel.className = `mt-4 p-4 rounded-xl border border-dashed relative overflow-hidden bg-navy-dark ${pos.direction === 'BUY' ? 'border-cyber-green' : 'border-cyber-red'}`;
-                        document.getElementById('op-action').textContent = `${pos.direction} (${pos.state})`;
-                        document.getElementById('op-action').className = `text-sm font-mono font-black ${pos.direction === 'BUY' ? 'text-cyber-green' : 'text-cyber-red'}`;
-                        document.getElementById('op-price').textContent = pos.entryPrice.toFixed(4);
-                        document.getElementById('op-sl').textContent = pos.sl.toFixed(4);
-                        document.getElementById('op-tp').textContent = pos.tp.toFixed(4);
-                    } else if (sc.totalScore >= 80) {
-                        const isBuy = analysis.nearSupport && analysis.h1Trend === 'BULLISH';
-                        triggerPanel.className = `mt-4 p-4 rounded-xl border border-dashed relative overflow-hidden bg-navy-dark ${isBuy ? 'border-cyber-green glow-green' : 'border-cyber-red glow-red'}`;
-                        document.getElementById('op-action').textContent = isBuy ? 'BUY GATILLO' : 'SELL GATILLO';
-                        document.getElementById('op-action').className = `text-sm font-mono font-black ${isBuy ? 'text-cyber-green' : 'text-[#ff3c5a]'}`;
-                        
-                        let slVal = isBuy ? analysis.targetZone - (analysis.targetZone*0.0018) : analysis.targetZone + (analysis.targetZone*0.0018);
-                        let tpVal = isBuy ? data.price + (data.price - slVal)*3.5 : data.price - (slVal - data.price)*3.5;
-
-                        document.getElementById('op-price').textContent = data.price.toFixed(4);
-                        document.getElementById('op-sl').textContent = slVal.toFixed(4);
-                        document.getElementById('op-tp').textContent = tpVal.toFixed(4);
-                    } else {
-                        triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-navy-border bg-navy-dark/60 relative overflow-hidden";
-                        document.getElementById('op-action').textContent = "ESPERANDO SEÑAL...";
-                        document.getElementById('op-action').className = "text-sm font-mono font-semibold text-slate-500";
-                        document.getElementById('op-price').textContent = "0.0000";
-                        document.getElementById('op-sl').textContent = "0.0000";
-                        document.getElementById('op-tp').textContent = "0.0000";
-                    }
-                }
-            }
+            return emaValues;
         }
 
-        // MOTOR DE RENDERIZACIÓN DE GRÁFICOS NATIVO (HTML5 CANVAS)
-        function renderChart() {
-            if (!canvas || !db[activeAddress]) return;
-            const data = db[activeAddress];
+        // MOTOR DE RENDERIZADO GRÁFICO NATIVO (HTML5 CANVAS)
+        function renderCanvasChart() {
+            if (!canvas || !db[activeSymbol]) return;
+            const data = db[activeSymbol];
             const candles = data.m5;
             const analysis = data.analysis;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            if (candles.length === 0) return;
+            if (candles.length === 0) {
+                ctx.fillStyle = '#64748b';
+                ctx.font = '12px Orbitron';
+                ctx.textAlign = 'center';
+                ctx.fillText('RECUPERANDO HISTÓRICO DE VELAS...', canvas.width / 2, canvas.height / 2);
+                return;
+            }
 
-            const sorted = [...candles].sort((a,b)=> a.time - b.time);
+            const sorted = [...candles].sort((a, b) => a.time - b.time);
 
             let minPrice = Infinity;
             let maxPrice = -Infinity;
 
-            // Calcular EMA 9 para renderizado de curva de tendencia
             const emaPeriod = 9;
             const k = 2 / (emaPeriod + 1);
-            const emaValues = [];
-            if(sorted.length > 0) {
+            let emaValues = [];
+            if (sorted.length > 0) {
                 let currentEma = sorted[0].close;
                 emaValues.push(currentEma);
-                for(let i=1; i<sorted.length; i++) {
+                for (let i = 1; i < sorted.length; i++) {
                     currentEma = sorted[i].close * k + currentEma * (1 - k);
                     emaValues.push(currentEma);
                 }
@@ -1123,9 +1114,9 @@
                 if (emaValues[idx] < minPrice) minPrice = emaValues[idx];
             });
 
-            const levels = [];
+            let levels = [];
             if (analysis) {
-                levels.push(...analysis.h1Support, ...analysis.h1Resistance);
+                levels = [...analysis.h1Support, ...analysis.h1Resistance];
             }
             levels.forEach(lvl => {
                 if (lvl > maxPrice) maxPrice = lvl;
@@ -1133,8 +1124,8 @@
             });
 
             const range = maxPrice - minPrice;
-            minPrice -= range * 0.08 || minPrice * 0.01;
-            maxPrice += range * 0.08 || maxPrice * 0.01;
+            minPrice -= range * 0.08;
+            maxPrice += range * 0.08;
 
             const paddingRight = 75;
             const paddingBottom = 25;
@@ -1144,11 +1135,14 @@
             const chartWidth = canvas.width - paddingLeft - paddingRight;
             const chartHeight = canvas.height - paddingTop - paddingBottom;
 
-            const getX = (index) => paddingLeft + (index / (sorted.length - 1)) * chartWidth;
-            const getY = (price) => paddingTop + (1 - (price - minPrice) / (maxPrice - minPrice)) * chartHeight;
+            function getX(index) {
+                return paddingLeft + (index / (sorted.length - 1)) * chartWidth;
+            }
+            function getY(price) {
+                return paddingTop + (1 - (price - minPrice) / (maxPrice - minPrice)) * chartHeight;
+            }
 
-            // Grillas Horizontales
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.02)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
             ctx.lineWidth = 1;
             for (let i = 0; i <= 5; i++) {
                 const y = paddingTop + (i / 5) * chartHeight;
@@ -1158,20 +1152,18 @@
                 ctx.stroke();
 
                 const priceVal = maxPrice - (i / 5) * (maxPrice - minPrice);
-                ctx.fillStyle = '#475569';
+                ctx.fillStyle = '#64748b';
                 ctx.font = '10px Space Grotesk';
                 ctx.textAlign = 'left';
-                let formattedPStr = priceVal < 0.001 ? priceVal.toFixed(6) : priceVal.toFixed(2);
-                ctx.fillText(formattedPStr, canvas.width - paddingRight + 8, y + 3.5);
+                ctx.fillText(priceVal.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 2 }), canvas.width - paddingRight + 8, y + 3.5);
             }
 
-            // Niveles de Soporte y Resistencias Macro H1
             if (analysis) {
                 analysis.h1Support.forEach((sup, idx) => {
                     const y = getY(sup);
                     ctx.strokeStyle = 'rgba(0, 230, 118, 0.45)';
                     ctx.lineWidth = 1.5;
-                    ctx.setLineDash([5, 4]);
+                    ctx.setLineDash([6, 4]);
                     ctx.beginPath();
                     ctx.moveTo(paddingLeft, y);
                     ctx.lineTo(canvas.width - paddingRight, y);
@@ -1181,28 +1173,27 @@
                     ctx.fillStyle = '#00e676';
                     ctx.font = '9px Orbitron';
                     ctx.textAlign = 'right';
-                    ctx.fillText(`H1 SOPORTE ${idx+1}`, canvas.width - paddingRight - 8, y - 4);
+                    ctx.fillText(`H1 SOPORTE ${idx + 1}`, canvas.width - paddingRight - 8, y - 4);
                 });
 
                 analysis.h1Resistance.forEach((res, idx) => {
                     const y = getY(res);
-                    ctx.strokeStyle = 'rgba(255, 60, 95, 0.45)';
+                    ctx.strokeStyle = 'rgba(255, 51, 102, 0.45)';
                     ctx.lineWidth = 1.5;
-                    ctx.setLineDash([5, 4]);
+                    ctx.setLineDash([6, 4]);
                     ctx.beginPath();
                     ctx.moveTo(paddingLeft, y);
                     ctx.lineTo(canvas.width - paddingRight, y);
                     ctx.stroke();
                     ctx.setLineDash([]);
 
-                    ctx.fillStyle = '#ff3c5a';
+                    ctx.fillStyle = '#ff3366';
                     ctx.font = '9px Orbitron';
                     ctx.textAlign = 'right';
-                    ctx.fillText(`H1 RESISTENCIA ${idx+1}`, canvas.width - paddingRight - 8, y - 4);
+                    ctx.fillText(`H1 RESISTENCIA ${idx + 1}`, canvas.width - paddingRight - 8, y - 4);
                 });
             }
 
-            // Velas Japonesas
             const candleWidth = Math.max(1.5, (chartWidth / sorted.length) * 0.55);
             sorted.forEach((c, idx) => {
                 const x = getX(idx);
@@ -1212,8 +1203,8 @@
                 const yLow = getY(c.low);
 
                 const isBullish = c.close >= c.open;
-                ctx.strokeStyle = isBullish ? '#00e676' : '#ff3c5f';
-                ctx.fillStyle = isBullish ? '#00e676' : '#ff3c5f';
+                ctx.strokeStyle = isBullish ? '#00e676' : '#ff3366';
+                ctx.fillStyle = isBullish ? '#00e676' : '#ff3366';
                 ctx.lineWidth = 1.2;
 
                 ctx.beginPath();
@@ -1221,22 +1212,21 @@
                 ctx.lineTo(x, yLow);
                 ctx.stroke();
 
-                const h = Math.max(1, Math.abs(yClose - yOpen));
-                ctx.fillRect(x - candleWidth / 2, Math.min(yOpen, yClose), candleWidth, h);
+                const bodyHeight = Math.max(1, Math.abs(yClose - yOpen));
+                ctx.fillRect(x - candleWidth / 2, Math.min(yOpen, yClose), candleWidth, bodyHeight);
             });
 
-            // EMA Linea de tendencia lisa adherida
             if (emaValues.length > 0) {
-                let trendColor = '#d4af37'; // gold
+                let trendColor = '#64748b';
                 if (analysis) {
                     if (analysis.h1Trend === 'BULLISH') trendColor = '#00e676';
-                    else if (analysis.h1Trend === 'BEARISH') trendColor = '#ff3c5f';
+                    else if (analysis.h1Trend === 'BEARISH') trendColor = '#ff3366';
                 }
 
                 ctx.strokeStyle = trendColor;
                 ctx.lineWidth = 2.5;
                 ctx.shadowColor = trendColor;
-                ctx.shadowBlur = 6;
+                ctx.shadowBlur = 8;
 
                 ctx.beginPath();
                 for (let i = 0; i < emaValues.length; i++) {
@@ -1246,69 +1236,202 @@
                     else ctx.lineTo(x, y);
                 }
                 ctx.stroke();
+
                 ctx.shadowBlur = 0;
             }
         }
 
-        // GESTIÓN DE TICKS EN TIEMPO REAL CON INTEGRACIÓN DEXSCREENER
-        function startLiveFeeds() {
-            // Inicializar base de datos de los tokens iniciales
-            tokens.forEach(t => initTokenDb(t.address, t.price));
+        // ACTUALIZACIÓN DE LA BARRA LATERAL
+        function updateSidebarWidget(symbolId, score, trend, nearZone) {
+            const badge = document.getElementById(`score-badge-${symbolId}`);
+            const trendText = document.getElementById(`trend-${symbolId}`);
+            const statusText = document.getElementById(`status-${symbolId}`);
 
-            logMessage('SYSTEM', 'Inicialización de Búfer e historiales estructurales ok.', 'success');
+            if (badge) {
+                badge.textContent = `${score} PTS`;
+                if (score >= 80) {
+                    badge.className = "font-mono text-[10px] bg-cyber-green/20 border border-cyber-green text-cyber-green px-2 py-0.5 rounded font-bold animate-pulse";
+                } else if (score >= 60) {
+                    badge.className = "font-mono text-[10px] bg-cyber-gold/20 border border-cyber-gold text-cyber-gold px-2 py-0.5 rounded font-bold";
+                } else {
+                    badge.className = "font-mono text-[10px] bg-[#121614] px-2 py-0.5 rounded border border-cyber-border text-gray-400";
+                }
+            }
 
-            // Simular WebSocket de alta frecuencia (ticks recurrentes realistas)
-            setInterval(() => {
-                tokens.forEach(tok => {
-                    const data = db[tok.address];
-                    if (!data) return;
+            if (trendText) {
+                if (trend === 'BULLISH') {
+                    trendText.textContent = "ALCISTA (Macro)";
+                    trendText.className = "font-mono uppercase font-bold text-cyber-green text-[10px]";
+                } else if (trend === 'BEARISH') {
+                    trendText.textContent = "BAJISTA (Macro)";
+                    trendText.className = "font-mono uppercase font-bold text-cyber-red text-[10px]";
+                } else {
+                    trendText.textContent = "LATERAL / RANGO";
+                    trendText.className = "font-mono uppercase font-bold text-gray-500 text-[10px]";
+                }
+            }
 
-                    const vol = t => t.symbol === 'BUSD' || t.symbol === 'USDC' ? 0.00005 : 0.0022;
-                    const change = (Math.random() - 0.492) * vol(tok); 
-                    
-                    data.prevPrice = data.price;
-                    data.price = data.price * (1 + change);
+            if (statusText) {
+                if (score >= 80) {
+                    statusText.textContent = "SNIPER GATILLO";
+                    statusText.className = "px-2 py-0.5 rounded-full bg-cyber-green/10 border border-cyber-green/40 text-cyber-green text-[9px] font-bold animate-pulse";
+                } else if (nearZone) {
+                    statusText.textContent = "ZONA CRÍTICA H1";
+                    statusText.className = "px-2 py-0.5 rounded-full bg-cyber-blue/10 border border-cyber-blue/30 text-cyber-blue text-[9px] font-medium";
+                } else {
+                    statusText.textContent = "BUSCANDO ENTRADA";
+                    statusText.className = "px-2 py-0.5 rounded-full bg-neutral-900 border border-neutral-800 text-gray-500 text-[9px]";
+                }
+            }
+        }
 
-                    // Actualizar última vela m5
-                    const lastIdx = data.m5.length - 1;
-                    data.m5[lastIdx].close = data.price;
-                    if (data.price > data.m5[lastIdx].high) data.m5[lastIdx].high = data.price;
-                    if (data.price < data.m5[lastIdx].low) data.m5[lastIdx].low = data.price;
+        // COCKPIT PRINCIPAL DE DECISIÓN DE LA POSICIÓN EN TIEMPO REAL
+        function updateScoringUI(analysis, currentPrice) {
+            const scoreCircle = document.getElementById('score-circle');
+            const scoreText = document.getElementById('score-text');
+            const qualityBadge = document.getElementById('quality-badge');
 
-                    analyzeMarket(tok.address);
-                });
+            const opAction = document.getElementById('op-action');
+            const opPrice = document.getElementById('op-price');
+            const opSL = document.getElementById('op-sl');
+            const opTP = document.getElementById('op-tp');
+            const triggerPanel = document.getElementById('trigger-panel');
 
-                // Solo redibujar y procesar UI
-                updateUI();
-                renderChart();
-            }, 1250);
+            if (!analysis) return;
 
-            // Re-vincular de forma pasiva con los fetch auténticos de Dexscreener API para sincronizar anclas
-            setInterval(() => {
-                tokens.forEach(tok => {
-                    const query = tok.address;
-                    let url = `https://api.dexscreener.com/latest/dex/tokens/${query}`;
+            const pos = positions[activeSymbol];
 
-                    fetch(url)
-                        .then(res => res.json())
-                        .then(data => {
-                            const pairs = data.pairs || data.pair;
-                            if (pairs && pairs.length > 0) {
-                                const bestPair = [...pairs].sort((a,b) => (b.liquidity?.usd || 0) - (a.liquidity?.usd || 0))[0];
-                                const currentRealPrice = parseFloat(bestPair.priceUsd) || tok.price;
-                                db[tok.address].price = currentRealPrice;
-                            }
-                        })
-                        .catch(err => {
-                            console.warn("Fallo de sincronización para token:", tok.symbol);
-                        });
-                });
-            }, 25000);
+            // A) INTERFAZ CUANDO HAY POSICIÓN ACTIVA
+            if (pos && pos.state === 'ACTIVE') {
+                let progress = 0;
+                if (pos.direction === 'BUY') {
+                    const totalDist = pos.tp - pos.entryPrice;
+                    const currentDist = currentPrice - pos.entryPrice;
+                    progress = (currentDist / totalDist) * 100;
+                } else {
+                    const totalDist = pos.entryPrice - pos.tp;
+                    const currentDist = pos.entryPrice - currentPrice;
+                    progress = (currentDist / totalDist) * 100;
+                }
+                progress = Math.max(0, Math.min(100, progress));
+
+                scoreText.textContent = `${Math.round(progress)}%`;
+                const strokeOffset = 390 - (390 * progress) / 100;
+                scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
+
+                if (pos.direction === 'BUY') {
+                    qualityBadge.textContent = "POSICIÓN BUY ACTIVA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+
+                    opAction.textContent = "BUY (ACTIVA)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-green text-glow";
+                    triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-green bg-[#0e1210] relative overflow-hidden glow-green";
+                } else {
+                    qualityBadge.textContent = "POSICIÓN SELL ACTIVA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-red/15 border border-cyber-red text-cyber-red inline-block text-[11px] font-mono font-bold tracking-widest glow-red animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#ff3366');
+
+                    opAction.textContent = "SELL (ACTIVA)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-red text-glow";
+                    triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-red bg-[#160e10] relative overflow-hidden glow-red";
+                }
+
+                opPrice.textContent = pos.entryPrice.toFixed(4);
+                opSL.textContent = pos.sl.toFixed(4);
+                opTP.textContent = pos.tp.toFixed(4);
+
+            // B) INTERFAZ EN CASO DE POSICIÓN CERRADA / INVALIDADA RECIENTEMENTE (CONGELADA POR 10S)
+            } else if (pos && pos.state !== 'IDLE') {
+                scoreText.textContent = "0%";
+                scoreCircle.setAttribute('stroke-dashoffset', 390);
+
+                if (pos.state === 'CLOSED_TP') {
+                    qualityBadge.textContent = "TP ALCANZADO (ÉXITO)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+
+                    opAction.textContent = "CERRADA (TP)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-green text-glow";
+                } else if (pos.state === 'CLOSED_SL') {
+                    qualityBadge.textContent = "SL ALCANZADO (PÉRDIDA)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-red/15 border border-cyber-red text-cyber-red inline-block text-[11px] font-mono font-bold tracking-widest glow-red";
+                    scoreCircle.setAttribute('stroke', '#ff3366');
+
+                    opAction.textContent = "CERRADA (SL)";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-red text-glow";
+                } else if (pos.state === 'INVALIDATED') {
+                    qualityBadge.textContent = "ESTRUCTURA ROTA";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-gold/15 border border-cyber-gold text-cyber-gold inline-block text-[11px] font-mono font-bold tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#ffb300');
+
+                    opAction.textContent = "INVALIDADA";
+                    opAction.className = "text-lg font-mono font-bold text-cyber-gold";
+                }
+
+                opPrice.textContent = pos.entryPrice.toFixed(4);
+                opSL.textContent = pos.sl.toFixed(4);
+                opTP.textContent = pos.tp.toFixed(4);
+                triggerPanel.className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-border bg-[#0e1210] relative overflow-hidden";
+
+            // C) INTERFAZ SIN POSICIÓN (MODO ESCÁNER BUSCANDO SETUP DE ALTA CALIDAD)
+            } else {
+                const scores = analysis.scores;
+                scoreText.textContent = scores.totalScore;
+
+                const strokeOffset = 390 - (390 * scores.totalScore) / 100;
+                scoreCircle.setAttribute('stroke-dashoffset', strokeOffset);
+
+                if (scores.totalScore >= 80) {
+                    qualityBadge.textContent = "ALTA CALIDAD (SNIPER)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-green/15 border border-cyber-green text-cyber-green inline-block text-[11px] font-mono font-bold tracking-widest glow-green animate-pulse";
+                    scoreCircle.setAttribute('stroke', '#00e676');
+                } else if (scores.totalScore >= 60) {
+                    qualityBadge.textContent = "CALIDAD MEDIA (VIGILAR)";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-cyber-gold/15 border border-cyber-gold text-cyber-gold inline-block text-[11px] font-mono font-bold tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#ffb300');
+                } else {
+                    qualityBadge.textContent = "SINOPSIS: ESPERANDO";
+                    qualityBadge.className = "px-4 py-1.5 rounded bg-[#121614] border border-cyber-border text-gray-500 inline-block text-[11px] font-mono tracking-widest";
+                    scoreCircle.setAttribute('stroke', '#475569');
+                }
+
+                resetTriggerPanel();
+            }
+
+            const scores = analysis.scores;
+            document.getElementById('score-h1').textContent = `${scores.scoreH1}/25 PTS`;
+            document.getElementById('score-h1').className = scores.scoreH1 > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
+            document.getElementById('h1-details').textContent = analysis.h1Trend !== 'LATERAL' ? `Tendencia Clara: ${analysis.h1Trend}` : "No Operar: Estructura Lateral";
+
+            document.getElementById('score-m15').textContent = `${scores.scoreM15}/20 PTS`;
+            document.getElementById('score-m15').className = scores.scoreM15 > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
+            document.getElementById('m15-details').textContent = analysis.trendAligned ? "Alineado con Estructura H1" : "Desalineado con H1 (Espera)";
+
+            document.getElementById('score-zone').textContent = `${scores.scoreZone}/25 PTS`;
+            document.getElementById('score-zone').className = scores.scoreZone > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
+            document.getElementById('zone-details').textContent = (analysis.nearSupport || analysis.nearResistance) ? `Testeo de Zona H1: ${analysis.targetZone.toFixed(2)}` : "Precio en Zona Intermedia (No Operar)";
+
+            document.getElementById('score-m5').textContent = `${scores.scoreM5}/20 PTS`;
+            document.getElementById('score-m5').className = scores.scoreM5 > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
+            document.getElementById('m5-details').textContent = analysis.m5Trigger ? `Gatillado: ${analysis.triggerPattern}` : "Esperando Ruptura o Rechazo M5";
+
+            document.getElementById('score-impulse').textContent = `${scores.impulseScore}/10 PTS`;
+            document.getElementById('score-impulse').className = scores.impulseScore > 0 ? "font-mono font-bold text-cyber-green" : "font-mono font-bold text-gray-600";
+            document.getElementById('impulse-details').textContent = scores.impulseScore > 0 ? "Presión Fuerte Direccional" : "Falta de Volumen / Impulso";
+        }
+
+        function resetTriggerPanel() {
+            document.getElementById('op-action').textContent = "ESPERANDO...";
+            document.getElementById('op-action').className = "text-lg font-mono font-bold text-gray-500";
+            document.getElementById('op-price').textContent = "0.0000";
+            document.getElementById('op-sl').textContent = "0.0000";
+            document.getElementById('op-tp').textContent = "0.0000";
+            document.getElementById('trigger-panel').className = "mt-4 p-4 rounded-xl border border-dashed border-cyber-border bg-[#0e1210] relative overflow-hidden";
         }
 
         window.onload = () => {
-            startLiveFeeds();
-            resizeCanvas();
+            connectWS();
         };
     </script>
 </body>
