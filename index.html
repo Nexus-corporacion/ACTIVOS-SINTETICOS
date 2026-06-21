@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Visualizador Flotante</title>
+    <title>Ventana Siempre al Frente</title>
     <style>
       * {
         box-sizing: border-box;
@@ -12,173 +12,105 @@
       }
       body {
         font-family: system-ui, -apple-system, sans-serif;
-        background-color: #0f172a;
-        color: #f8fafc;
+        background-color: #0b0f19;
+        color: #f1f5f9;
         min-height: 100vh;
-        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
-      }
-      #workspace {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 10;
+        padding: 20px;
       }
       .panel {
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 16px;
-        z-index: 20;
-        pointer-events: auto;
+        background-color: #111827;
+        border: 1px solid #1f2937;
+        border-radius: 12px;
+        padding: 24px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        text-align: center;
+      }
+      h1 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+      }
+      p {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-bottom: 20px;
+      }
+      .form {
         display: flex;
-        gap: 8px;
-        width: 400px;
-        max-width: 90%;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+        flex-direction: column;
+        gap: 12px;
       }
       input {
-        flex: 1;
-        background-color: #0f172a;
-        border: 1px solid #334155;
-        color: #f8fafc;
-        padding: 8px 12px;
-        border-radius: 6px;
+        background-color: #030712;
+        border: 1px solid #374151;
+        color: #ffffff;
+        padding: 12px 14px;
+        border-radius: 8px;
         outline: none;
         font-size: 14px;
+        width: 100%;
+        text-align: center;
       }
       input:focus {
         border-color: #6366f1;
+        box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
       }
       button {
         background-color: #6366f1;
         color: #ffffff;
         border: none;
-        padding: 8px 16px;
-        border-radius: 6px;
+        padding: 12px;
+        border-radius: 8px;
         cursor: pointer;
         font-weight: 600;
         font-size: 14px;
-        white-space: nowrap;
+        transition: background-color 0.15s;
       }
       button:hover {
         background-color: #4f46e5;
       }
-
-      /* Ventana Flotante */
-      .floating-window {
-        position: absolute;
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        pointer-events: auto;
-        z-index: 100;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      .footer-note {
+        margin-top: 16px;
+        font-size: 11px;
+        color: #6b7280;
+        line-height: 1.4;
       }
-      .floating-window.focused {
-        border-color: #6366f1;
-      }
-      .window-header {
-        height: 36px;
-        background-color: #0f172a;
-        border-bottom: 1px solid #334155;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 12px;
-        cursor: move;
-        user-select: none;
-      }
-      .window-title {
+      .error-msg {
+        background-color: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: #fca5a5;
+        padding: 10px;
+        border-radius: 6px;
         font-size: 12px;
-        color: #94a3b8;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: calc(100% - 30px);
-      }
-      .close-btn {
-        background: none;
-        border: none;
-        color: #94a3b8;
-        cursor: pointer;
-        font-size: 14px;
-        width: 20px;
-        height: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-      }
-      .close-btn:hover {
-        background-color: #ef4444;
-        color: #ffffff;
-      }
-      .window-body {
-        position: relative;
-        flex: 1;
-        background-color: #ffffff;
-      }
-      .shield {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: transparent;
+        margin-top: 14px;
         display: none;
-        z-index: 50;
-      }
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        display: block;
-      }
-      .resize-se {
-        position: absolute;
-        bottom: 4px;
-        right: 4px;
-        width: 20px;
-        height: 20px;
-        cursor: se-resize;
-        z-index: 60;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        color: #94a3b8;
-        background-color: #1e293b;
-        border: 1px solid #334155;
-        border-radius: 50%;
-        user-select: none;
-      }
-      .resize-se:hover {
-        color: #6366f1;
       }
     </style>
   </head>
   <body>
 
-    <div id="workspace"></div>
-
     <div class="panel">
-      <input type="text" id="url" placeholder="Escribe o pega una URL..." required autocomplete="off" />
-      <button onclick="launch()">Abrir</button>
+      <h1>Ventana Siempre al Frente</h1>
+      <p>Abre cualquier sitio web en un panel flotante real del sistema que nunca se oculta tras de otras pestañas o programas</p>
+      
+      <div class="form">
+        <input type="text" id="url" placeholder="Escribe o pega una URL de destino..." required autocomplete="off" />
+        <button onclick="launchAlwaysOnTop()">Abrir Ventana Flotante</button>
+      </div>
+
+      <div id="error-box" class="error-msg"></div>
+
+      <div class="footer-note">
+        Utiliza la tecnología de visualización nativa Document Picture-in-Picture para anclar el panel en primer plano absoluto. Es redimensionable y movible por toda tu pantalla.
+      </div>
     </div>
 
     <script>
-      let winCount = 0;
-      let topZ = 100;
-
       function cleanURL(url) {
         let u = url.trim();
         if (!u) return '';
@@ -188,173 +120,70 @@
         return u;
       }
 
-      function launch() {
+      async function launchAlwaysOnTop() {
         const urlInput = document.getElementById('url');
+        const errorBox = document.getElementById('error-box');
         const url = cleanURL(urlInput.value);
-        if (!url) return;
 
-        const w = 800;
-        const h = 600;
+        errorBox.style.display = 'none';
 
-        winCount++;
-        topZ += 5;
-
-        const win = document.createElement('div');
-        const winId = `win-${winCount}`;
-        win.id = winId;
-        win.className = 'floating-window focused';
-        
-        document.querySelectorAll('.floating-window').forEach(w => w.classList.remove('focused'));
-
-        const offset = (winCount % 8) * 20;
-        win.style.width = `${w}px`;
-        win.style.height = `${h}px`;
-        win.style.left = `${40 + offset}px`;
-        win.style.top = `${40 + offset}px`;
-        win.style.zIndex = topZ;
-
-        win.innerHTML = `
-          <div class="window-header" onmousedown="focusWin('${winId}')" ontouchstart="focusWin('${winId}')">
-            <span class="window-title">${url}</span>
-            <button class="close-btn" onclick="document.getElementById('${winId}').remove()" onmousedown="event.stopPropagation()">✕</button>
-          </div>
-          <div class="window-body">
-            <div class="shield" id="${winId}-shield"></div>
-            <iframe src="${url}" referrerpolicy="no-referrer"></iframe>
-          </div>
-          <div class="resize-se" onmousedown="startResize(event, '${winId}')" ontouchstart="startResize(event, '${winId}')">↘</div>
-        `;
-
-        setupDrag(win);
-
-        win.addEventListener('mousedown', () => focusWin(winId));
-        win.addEventListener('touchstart', () => focusWin(winId), { passive: true });
-
-        document.getElementById('workspace').appendChild(win);
-      }
-
-      function focusWin(id) {
-        const w = document.getElementById(id);
-        if (w && !w.classList.contains('focused')) {
-          document.querySelectorAll('.floating-window').forEach(win => win.classList.remove('focused'));
-          w.classList.add('focused');
-          topZ += 1;
-          w.style.zIndex = topZ;
+        if (!url) {
+          showError('Por favor, escribe una URL válida.');
+          return;
         }
-      }
 
-      function setupDrag(win) {
-        const header = win.querySelector('.window-header');
-        let dx = 0, dy = 0, px = 0, py = 0;
+        // 1. Comprobar si el navegador soporta Document Picture-in-Picture (Always on top real del sistema)
+        if ('documentPictureInPicture' in window) {
+          try {
+            // Solicitar la ventana de reproducción especial en primer plano
+            const pipWindow = await window.documentPictureInPicture.requestWindow({
+              width: 800,
+              height: 600,
+            });
 
-        header.onmousedown = dragStart;
-        header.ontouchstart = dragStart;
+            // Configurar los estilos básicos en la nueva ventana del sistema para que se adapte
+            const style = pipWindow.document.createElement('style');
+            style.textContent = `
+              * { box-sizing: border-box; margin: 0; padding: 0; }
+              body, html { width: 100vw; height: 100vh; overflow: hidden; background: #000; }
+              iframe { width: 100%; height: 100%; border: none; display: block; }
+            `;
+            pipWindow.document.head.appendChild(style);
 
-        function dragStart(e) {
-          if (e.target.closest('.close-btn')) return;
-          e = e || window.event;
-          const isTouch = e.type === 'touchstart';
-          px = isTouch ? e.touches[0].clientX : e.clientX;
-          py = isTouch ? e.touches[0].clientY : e.clientY;
+            // Crear el iframe que renderizará la URL elegida
+            const iframe = pipWindow.document.createElement('iframe');
+            iframe.src = url;
+            iframe.referrerPolicy = 'no-referrer';
+            
+            pipWindow.document.body.appendChild(iframe);
 
-          const shield = document.getElementById(`${win.id}-shield`);
-          if (shield) shield.style.display = 'block';
-
-          if (isTouch) {
-            document.ontouchend = dragEnd;
-            document.ontouchmove = dragMove;
-          } else {
-            document.onmouseup = dragEnd;
-            document.onmousemove = dragMove;
+          } catch (err) {
+            console.error(err);
+            showError('Para abrir la ventana flotante, haz clic directamente en el botón flotante. Si el error persiste, comprueba los permisos.');
           }
-          focusWin(win.id);
-        }
-
-        function dragMove(e) {
-          e = e || window.event;
-          const isTouch = e.type === 'touchmove';
-          const cx = isTouch ? e.touches[0].clientX : e.clientX;
-          const cy = isTouch ? e.touches[0].clientY : e.clientY;
-
-          dx = px - cx;
-          dy = py - cy;
-          px = cx;
-          py = cy;
-
-          let newLeft = win.offsetLeft - dx;
-          let newTop = win.offsetTop - dy;
-
-          newLeft = Math.max(-win.offsetWidth + 80, Math.min(newLeft, window.innerWidth - 80));
-          newTop = Math.max(0, Math.min(newTop, window.innerHeight - 30));
-
-          win.style.left = `${newLeft}px`;
-          win.style.top = `${newTop}px`;
-        }
-
-        function dragEnd() {
-          const shield = document.getElementById(`${win.id}-shield`);
-          if (shield) shield.style.display = 'none';
-
-          document.onmouseup = null;
-          document.onmousemove = null;
-          document.ontouchend = null;
-          document.ontouchmove = null;
-        }
-      }
-
-      let resizeTargetId = null;
-      let startW = 0, startH = 0, sX = 0, sY = 0;
-
-      function startResize(e, id) {
-        e = e || window.event;
-        e.preventDefault();
-        e.stopPropagation();
-
-        resizeTargetId = id;
-        const win = document.getElementById(id);
-        const isTouch = e.type === 'touchstart';
-        sX = isTouch ? e.touches[0].clientX : e.clientX;
-        sY = isTouch ? e.touches[0].clientY : e.clientY;
-        startW = win.offsetWidth;
-        startH = win.offsetHeight;
-
-        const shield = document.getElementById(`${id}-shield`);
-        if (shield) shield.style.display = 'block';
-
-        if (isTouch) {
-          document.addEventListener('touchmove', handleResize, { passive: false });
-          document.addEventListener('touchend', stopResize, { passive: true });
         } else {
-          document.addEventListener('mousemove', handleResize);
-          document.addEventListener('mouseup', stopResize);
+          // 2. Fallback clásico de ventana emergente centrada si no soporta la API especial
+          showError('Tu navegador actual no soporta la API Document Picture-in-Picture para ventanas siempre al frente de sistema. Intentando abrir popup emergente...');
+          
+          const w = 800;
+          const h = 600;
+          const left = window.screen.width / 2 - w / 2;
+          const top = window.screen.height / 2 - h / 2;
+          const features = `width=${w},height=${h},top=${top},left=${left},resizable=yes,scrollbars=yes`;
+          
+          const popup = window.open(url, '_blank', features);
+          if (popup) {
+            popup.focus();
+          } else {
+            showError('El navegador bloqueó la ventana emergente. Por favor, habilita los popups.');
+          }
         }
-        focusWin(id);
       }
 
-      function handleResize(e) {
-        if (!resizeTargetId) return;
-        const win = document.getElementById(resizeTargetId);
-        const isTouch = e.type === 'touchmove';
-        const cx = isTouch ? e.touches[0].clientX : e.clientX;
-        const cy = isTouch ? e.touches[0].clientY : e.clientY;
-
-        const newW = Math.max(200, startW + (cx - sX));
-        const newH = Math.max(150, startH + (cy - sY));
-        
-        win.style.width = `${newW}px`;
-        win.style.height = `${newH}px`;
-      }
-
-      function stopResize() {
-        if (resizeTargetId) {
-          const shield = document.getElementById(`${resizeTargetId}-shield`);
-          if (shield) shield.style.display = 'none';
-        }
-        resizeTargetId = null;
-        document.removeEventListener('mousemove', handleResize);
-        document.removeEventListener('mouseup', stopResize);
-        document.removeEventListener('touchmove', handleResize);
-        document.removeEventListener('touchend', stopResize);
+      function showError(msg) {
+        const errorBox = document.getElementById('error-box');
+        errorBox.textContent = msg;
+        errorBox.style.display = 'block';
       }
     </script>
   </body>
